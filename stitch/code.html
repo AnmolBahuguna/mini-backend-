@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DHIP Evidence Vault | Synthetic Sentinel</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-container": "#002d45",
+                        "on-error": "#490006",
+                        "primary-dim": "#00a7f0",
+                        "on-surface-variant": "#adaaab",
+                        "surface-container-highest": "#262627",
+                        "secondary-fixed": "#cdcdff",
+                        "inverse-on-surface": "#565556",
+                        "on-secondary-fixed": "#160bae",
+                        "on-background": "#ffffff",
+                        "secondary-fixed-dim": "#bdbeff",
+                        "surface-bright": "#2c2c2d",
+                        "tertiary-fixed-dim": "#00edb4",
+                        "error-container": "#9f0519",
+                        "secondary-container": "#2f2ebe",
+                        "error": "#ff716c",
+                        "tertiary-container": "#00fdc1",
+                        "on-tertiary": "#00654b",
+                        "primary-fixed-dim": "#00a5ec",
+                        "surface": "#0e0e0f",
+                        "surface-container-high": "#201f21",
+                        "on-primary": "#003854",
+                        "on-tertiary-container": "#005c44",
+                        "on-secondary-container": "#ccccff",
+                        "surface-container-low": "#131314",
+                        "on-surface": "#ffffff",
+                        "on-error-container": "#ffa8a3",
+                        "on-primary-fixed": "#000d18",
+                        "primary-container": "#0cb3ff",
+                        "on-primary-fixed-variant": "#003752",
+                        "secondary-dim": "#6063ee",
+                        "primary": "#5cbfff",
+                        "surface-variant": "#262627",
+                        "surface-tint": "#5cbfff",
+                        "inverse-surface": "#fcf8f9",
+                        "secondary": "#9093ff",
+                        "outline": "#767576",
+                        "on-secondary-fixed-variant": "#3a3ac8",
+                        "surface-container": "#1a191b",
+                        "tertiary": "#aaffdc",
+                        "on-tertiary-fixed-variant": "#00664c",
+                        "on-secondary": "#080079",
+                        "inverse-primary": "#006593",
+                        "tertiary-fixed": "#00fdc1",
+                        "outline-variant": "#484849",
+                        "error-dim": "#d7383b",
+                        "background": "#0e0e0f",
+                        "surface-dim": "#0e0e0f",
+                        "primary-fixed": "#0cb3ff",
+                        "on-tertiary-fixed": "#004734",
+                        "tertiary-dim": "#00edb4",
+                        "surface-container-lowest": "#000000"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(26, 25, 27, 0.7);
+            backdrop-filter: blur(12px);
+        }
+        .hud-grid {
+            background-image: radial-gradient(circle at 2px 2px, rgba(72, 72, 73, 0.05) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface selection:bg-primary selection:text-on-primary min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-surface/70 dark:bg-[#0e0e0f]/70 backdrop-blur-xl shadow-[0_0_40px_rgba(144,147,255,0.08)]">
+<div class="flex justify-between items-center w-full px-8 py-4 mx-auto">
+<div class="text-2xl font-black tracking-tighter text-white uppercase font-headline">DHIP</div>
+<div class="hidden md:flex items-center space-x-8 font-headline font-bold tracking-tight">
+<a class="text-[#adaaab] hover:text-white transition-colors" href="#">Home</a>
+<a class="text-[#adaaab] hover:text-white transition-colors" href="#">Threat Check</a>
+<a class="text-[#adaaab] hover:text-white transition-colors" href="#">Alerts</a>
+<a class="text-[#adaaab] hover:text-white transition-colors" href="#">Safety</a>
+<a class="text-[#00E5FF] border-b-2 border-[#00E5FF] pb-1" href="#">Evidence</a>
+<a class="text-[#adaaab] hover:text-white transition-colors" href="#">Community</a>
+</div>
+<div class="flex items-center space-x-6">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-white transition-all">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-white transition-all">account_circle</button>
+</div>
+</div>
+<div class="bg-gradient-to-r from-transparent via-[#484849]/15 to-transparent h-[1px] w-full absolute bottom-0"></div>
+</nav>
+<main class="flex-grow pt-24 pb-16 px-8 max-w-7xl mx-auto w-full hud-grid">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+<div class="max-w-2xl">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span class="font-label text-label-sm uppercase tracking-widest text-primary font-bold">Encrypted Repository</span>
+</div>
+<h1 class="font-headline text-5xl font-black tracking-tighter text-white mb-4 uppercase">Evidence Vault</h1>
+<p class="text-on-surface-variant text-lg leading-relaxed">Secure management of forensic data and threat indicators. Multi-layer encryption active for all identified intelligence assets.</p>
+</div>
+<div class="flex flex-wrap gap-4">
+<button class="flex items-center gap-2 px-6 py-3 bg-[#1a191b] border border-[#484849]/20 hover:bg-[#201f21] transition-all rounded-md font-headline font-bold text-sm tracking-wide text-white uppercase group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-white transition-colors">ios_share</span>
+                    Export for Legal
+                </button>
+<button class="flex items-center gap-2 px-8 py-3 bg-gradient-to-br from-primary to-primary-dim hover:shadow-[0_0_20px_rgba(92,191,255,0.3)] transition-all rounded-md font-headline font-bold text-sm tracking-wide text-on-primary uppercase group">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 600;">add_box</span>
+                    Upload New Evidence
+                </button>
+</div>
+</header>
+<!-- Stats / Security Indicator -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<div class="glass-panel p-6 rounded-lg border border-outline-variant/10 flex items-center justify-between">
+<div>
+<span class="font-label text-label-sm uppercase tracking-widest text-on-surface-variant">Vault Status</span>
+<div class="text-xl font-headline font-bold text-tertiary-dim flex items-center gap-2 mt-1">
+                        SECURE
+                        <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">lock</span>
+</div>
+</div>
+<div class="h-10 w-10 rounded-full border-2 border-tertiary-dim/20 flex items-center justify-center">
+<div class="h-6 w-6 rounded-full border-t-2 border-tertiary-dim animate-spin-slow"></div>
+</div>
+</div>
+<div class="glass-panel p-6 rounded-lg border border-outline-variant/10">
+<span class="font-label text-label-sm uppercase tracking-widest text-on-surface-variant">Encryption Level</span>
+<div class="text-xl font-headline font-bold text-white mt-1">AES-4096 Tactical</div>
+<div class="mt-3 w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[94%]"></div>
+</div>
+</div>
+<div class="glass-panel p-6 rounded-lg border border-outline-variant/10">
+<span class="font-label text-label-sm uppercase tracking-widest text-on-surface-variant">Last Backup</span>
+<div class="text-xl font-headline font-bold text-white mt-1">04m 12s AGO</div>
+<div class="text-xs text-on-surface-variant mt-2 font-mono">NODE: SYNC-SENTINEL-09</div>
+</div>
+</section>
+<!-- Evidence Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Item 1: Verified -->
+<div class="glass-panel group rounded-lg border border-outline-variant/10 overflow-hidden hover:border-primary/40 transition-all duration-500">
+<div class="aspect-video relative overflow-hidden bg-surface-container-highest">
+<div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent opacity-60 z-10"></div>
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Abstract blue digital network architecture pattern" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQeF_EW3qzYCsWZQDvW8iq_aJ3qYevz33xEooHEQkPE2EWYDXnIp2juY72tfv7YxF2S1wrKP9r7HynM9E4VdIo0eecN_TM9POLWVFCI3ZH2j_EriOI0P5umdPBR3qF9tQ9orHMB8T5EbFWWvOFZ9NRd9mxgBJ_Aoz7smGY4eCqFsrGPWlBMq3ykQtQrKbaAsydBW5FYVgJNiGHSvE4Pd2rViySiczxJHUQuQDAP_VNVfeCI9xZGcPl5W21dbelo5mbKn8xVjKRnyo"/>
+<div class="absolute top-4 left-4 z-20">
+<span class="bg-tertiary/10 backdrop-blur-md text-tertiary-dim text-[0.625rem] font-bold px-2 py-1 rounded-sm uppercase tracking-tighter border border-tertiary-dim/20">Verified</span>
+</div>
+<div class="absolute bottom-4 left-4 right-4 z-20 flex justify-between items-end">
+<div class="font-headline font-bold text-white text-lg tracking-tight">Signal_Intercept_99.enc</div>
+<span class="material-symbols-outlined text-white/50 text-sm">visibility</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-center mb-4">
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Date: 2024.10.12</span>
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Size: 42.5 MB</span>
+</div>
+<p class="text-sm text-on-surface-variant line-clamp-2 leading-relaxed mb-6">Encrypted metadata packet containing tactical communications detected in Sector-7. Integrity verified by sentinel-alpha.</p>
+<div class="flex gap-2">
+<button class="flex-1 py-2 bg-surface-container-high hover:bg-surface-bright text-[0.6875rem] font-bold uppercase tracking-wider transition-colors">Decrypt View</button>
+<button class="p-2 border border-outline-variant/20 hover:border-primary/50 transition-colors text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined text-lg">download</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 2: Pending -->
+<div class="glass-panel group rounded-lg border border-outline-variant/10 overflow-hidden hover:border-secondary/40 transition-all duration-500">
+<div class="aspect-video relative overflow-hidden bg-surface-container-highest">
+<div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent opacity-60 z-10"></div>
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Cybersecurity circuit board with glowing neon lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGv6SSxvH-j55Wq3rKn6SczZqY0Srr14-k-UkekW6eG-DcsUc82Ub_6hdYV4io8j3jGA5r05syO7B1oifuLxACjEb5OhGbx2on7d7MJWVC47c5Yac_EBZyjx4ofeF8uC97dTi5nUeNTRzOhxbRewj4G0bFYxGw_NBKJLEk11TxdhCFuc7muWFkvkWRWnTYEg2T43CLYJyotr8flmTf8XIijDcxTdIWj3OFOG8j00ZstKdf0_HrU9s-GTvms4npxbmcQdSdA_w9WmI"/>
+<div class="absolute top-4 left-4 z-20">
+<span class="bg-primary/10 backdrop-blur-md text-primary text-[0.625rem] font-bold px-2 py-1 rounded-sm uppercase tracking-tighter border border-primary/20">Pending Analysis</span>
+</div>
+<div class="absolute bottom-4 left-4 right-4 z-20 flex justify-between items-end">
+<div class="font-headline font-bold text-white text-lg tracking-tight">Auth_Log_Fragment.txt</div>
+<span class="material-symbols-outlined text-white/50 text-sm">pending</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-center mb-4">
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Date: 2024.11.01</span>
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Size: 1.2 MB</span>
+</div>
+<p class="text-sm text-on-surface-variant line-clamp-2 leading-relaxed mb-6">Unauthorized access logs recovered from localized gateway. Pattern matching in progress for known threat actors.</p>
+<div class="flex gap-2">
+<button class="flex-1 py-2 bg-surface-container-high hover:bg-surface-bright text-[0.6875rem] font-bold uppercase tracking-wider transition-colors">Scan Fragment</button>
+<button class="p-2 border border-outline-variant/20 hover:border-primary/50 transition-colors text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined text-lg">more_horiz</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 3: Encrypted -->
+<div class="glass-panel group rounded-lg border border-outline-variant/10 overflow-hidden hover:border-error/40 transition-all duration-500">
+<div class="aspect-video relative overflow-hidden bg-surface-container-lowest flex items-center justify-center">
+<div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,113,108,0.05)_0%,_transparent_70%)]"></div>
+<div class="z-20 text-center">
+<span class="material-symbols-outlined text-error text-5xl mb-2" style="font-variation-settings: 'FILL' 1;">enhanced_encryption</span>
+<div class="font-headline font-bold text-white text-sm uppercase tracking-widest">Classified Access Only</div>
+</div>
+<div class="absolute top-4 left-4 z-20">
+<span class="bg-error/10 backdrop-blur-md text-error text-[0.625rem] font-bold px-2 py-1 rounded-sm uppercase tracking-tighter border border-error/20">High Priority</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-center mb-4">
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Date: 2024.11.05</span>
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Size: 1.8 GB</span>
+</div>
+<p class="text-sm text-on-surface-variant line-clamp-2 leading-relaxed mb-6">Full system image backup containing encrypted sensitive operational data. Locked with hardware key 0x7F2.</p>
+<div class="flex gap-2">
+<button class="flex-1 py-2 bg-error-container/20 hover:bg-error-container/40 text-error text-[0.6875rem] font-bold uppercase tracking-wider transition-colors">Emergency Access</button>
+<button class="p-2 border border-outline-variant/20 hover:border-primary/50 transition-colors text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined text-lg">history</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 4: Verified -->
+<div class="glass-panel group rounded-lg border border-outline-variant/10 overflow-hidden hover:border-primary/40 transition-all duration-500">
+<div class="aspect-video relative overflow-hidden bg-surface-container-highest">
+<div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent opacity-60 z-10"></div>
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Abstract 3D data visualization of interconnected nodes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5Y3XyOA_PNIQQ2H_5F1txun1WT88H5GRlhit-wMtctEDp-aL_2Mu_u8NFdNRR3DgKapmyefDyRFppqmHF4DtTAA0oEkadHxXAjF_GDueYtxZg8yJKgnLvB5T-RKCTQROSLOwoeY_te98hluFiSFmDaHVxD2DK5o4TfdJ5aUeHT9tYtDnke0PhQIJCElSnRnZALTQMUZHeGYELgS09W9Qz53G11TXDQ24lBd3-Wm6cCn19in4dsCSkSZEVRnaJAggfKWHjkHeP8ZM"/>
+<div class="absolute top-4 left-4 z-20">
+<span class="bg-tertiary/10 backdrop-blur-md text-tertiary-dim text-[0.625rem] font-bold px-2 py-1 rounded-sm uppercase tracking-tighter border border-tertiary-dim/20">Verified</span>
+</div>
+<div class="absolute bottom-4 left-4 right-4 z-20 flex justify-between items-end">
+<div class="font-headline font-bold text-white text-lg tracking-tight">Geo_Evidence_003.map</div>
+<span class="material-symbols-outlined text-white/50 text-sm">location_on</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-center mb-4">
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Date: 2024.11.04</span>
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Size: 214 KB</span>
+</div>
+<p class="text-sm text-on-surface-variant line-clamp-2 leading-relaxed mb-6">Localized coordinate data for recent intrusion attempt. Correlated with sentinel movement maps.</p>
+<div class="flex gap-2">
+<button class="flex-1 py-2 bg-surface-container-high hover:bg-surface-bright text-[0.6875rem] font-bold uppercase tracking-wider transition-colors">Open Map</button>
+<button class="p-2 border border-outline-variant/20 hover:border-primary/50 transition-colors text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined text-lg">map</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#000000] border-t border-[#484849]/10 w-full py-12 px-8 mt-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 max-w-7xl mx-auto">
+<div class="col-span-1">
+<div class="text-lg font-bold text-white mb-4 font-headline uppercase">DHIP</div>
+<p class="font-['Inter'] text-[0.6875rem] uppercase tracking-widest text-[#adaaab]">© 2024 DHIP. The Synthetic Sentinel Intelligence.</p>
+</div>
+<div class="col-span-1 flex flex-col gap-3">
+<span class="font-headline text-xs font-black text-white uppercase tracking-widest mb-2">Capabilities</span>
+<a class="font-['Inter'] text-[0.6875rem] uppercase tracking-widest text-[#adaaab] hover:text-[#00E5FF] transition-all hover:translate-x-1" href="#">Threat Check</a>
+<a class="font-['Inter'] text-[0.6875rem] uppercase tracking-widest text-[#adaaab] hover:text-[#00E5FF] transition-all hover:translate-x-1" href="#">Alerts</a>
+</div>
+<div class="col-span-1 flex flex-col gap-3">
+<span class="font-headline text-xs font-black text-white uppercase tracking-widest mb-2">Protocol</span>
+<a class="font-['Inter'] text-[0.6875rem] uppercase tracking-widest text-[#adaaab] hover:text-[#00E5FF] transition-all hover:translate-x-1" href="#">Support</a>
+<a class="font-['Inter'] text-[0.6875rem] uppercase tracking-widest text-[#adaaab] hover:text-[#00E5FF] transition-all hover:translate-x-1" href="#">Privacy</a>
+</div>
+<div class="col-span-1">
+<span class="font-headline text-xs font-black text-white uppercase tracking-widest mb-4 block">Intelligence Node</span>
+<div class="flex items-center gap-3">
+<div class="h-2 w-2 rounded-full bg-tertiary-dim shadow-[0_0_8px_rgba(0,237,180,0.6)]"></div>
+<span class="font-['Inter'] text-[0.6875rem] uppercase tracking-widest text-[#adaaab]">Operational: 0ms Latency</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>
