@@ -24,6 +24,7 @@ export function LoginPage() {
   const { user, signIn } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const returnUrl = new URLSearchParams(location.search).get('returnUrl')
   const {
     register,
     handleSubmit,
@@ -37,7 +38,8 @@ export function LoginPage() {
   const submit = async (values: LoginInput) => {
     try {
       await signIn(values.email, values.password)
-      navigate((location.state as { from?: string })?.from || '/')
+      const destination = returnUrl || (location.state as { from?: string })?.from || '/'
+      navigate(destination)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Invalid credentials')
     }

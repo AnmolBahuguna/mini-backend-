@@ -4,6 +4,10 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { PageHero } from '../components/layout/PageHero'
 import { indiaRegions } from '../lib/indiaRegions'
+import { useLocation, useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
+import { api } from '../lib/api'
+import { useOptionalAuth } from '../store/AuthContext'
 
 const schema = z.object({
   threatType: z.string().min(1, 'Threat type is required'),
@@ -17,6 +21,10 @@ const schema = z.object({
 type FormInput = z.infer<typeof schema>
 
 export function ReportPage() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const auth = useOptionalAuth()
+  const user = auth?.user
   const {
     register,
     handleSubmit,
@@ -27,10 +35,28 @@ export function ReportPage() {
     defaultValues: { anonymous: true },
   })
 
-  const submit = async (_values: FormInput) => {
-    await new Promise((resolve) => setTimeout(resolve, 900))
-    confetti({ particleCount: 160, spread: 80, origin: { y: 0.6 } })
-    reset()
+  const submit = async (values: FormInput) => {
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    if (!user) {
+      const returnUrl = encodeURIComponent(location.pathname)
+      toast.error('Please sign in to submit a report')
+      navigate(`/auth/login?returnUrl=${returnUrl}`)
+      return
+    }
+
+    try {
+      await api.post('/api/reports/', {
+        entity: values.entity,
+        scamType: values.threatType,
+        description: values.description,
+      })
+      confetti({ particleCount: 160, spread: 80, origin: { y: 0.6 } })
+      toast.success('Report submitted successfully')
+      reset({ anonymous: true, threatType: '', description: '', entity: '', state: '', victimCount: '' })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to submit report right now'
+      toast.error(message)
+    }
   }
 
   return (
@@ -38,6 +64,14 @@ export function ReportPage() {
       <PageHero title="Report a Threat" subtitle="Your report helps protect thousands of users across India" />
       <section className="page-wrap py-16">
         <form onSubmit={handleSubmit(submit)} className="card space-y-4">
+          <button
+            type="button"
+            className="rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:border-white/30"
+            onClick={() => navigate(-1)}
+          >
+            ← Back
+          </button>
+
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-400 uppercase">Threat Type</label>
             <select className="input-base" {...register('threatType')}>

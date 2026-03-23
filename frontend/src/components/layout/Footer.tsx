@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 export function Footer() {
   return (
-    <footer className="border-t border-[#484849]/20 bg-[#000000]">
+    <footer className="border-t border-[#1b2140]/40 bg-[#050b1e]">
       <div className="page-wrap grid gap-8 py-12 md:grid-cols-2 lg:grid-cols-4">
         <div>
           <h3 className="font-headline text-xl font-black uppercase tracking-tight text-white">DHIP</h3>
@@ -45,8 +45,8 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-[#484849]/20 py-4 text-center text-[11px] uppercase tracking-[0.14em] text-[#adaaab]">
-        © 2026 DHIP — Synthetic Sentinel Intelligence.
+      <div className="border-t border-[#1b2140]/40 py-4 text-center text-[11px] uppercase tracking-[0.14em] text-[#adb9ff]">
+        © 2026 DHIP — Synthetic Sentinel Intelligence · Developed by Anmol
       </div>
     </footer>
   )

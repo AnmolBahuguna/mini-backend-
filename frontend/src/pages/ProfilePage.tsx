@@ -1,5 +1,9 @@
 import { Plus, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
 import { useAuth } from '../store/AuthContext'
 
 type Tab = 'My Reports' | 'Saved Alerts' | 'Emergency Contacts' | 'Notifications' | 'Account Settings'
@@ -10,7 +14,22 @@ export function ProfilePage() {
   const [contacts, setContacts] = useState([
     { id: '1', name: 'Aman', phone: '+919876543210', relationship: 'Brother' },
   ])
-  const [draft, setDraft] = useState({ name: '', phone: '', relationship: '' })
+
+  const contactSchema = z.object({
+    name: z.string().min(2, 'Name is required'),
+    phone: z.string().regex(/^(\+?\d{10,13})$/, 'Enter a valid phone'),
+    relationship: z.string().min(2, 'Relationship is required'),
+  })
+
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<z.infer<typeof contactSchema>>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: { name: '', phone: '', relationship: '' },
+  })
+
+  const joinedDate = useMemo(() => {
+    const source = user?.joinedAt || '2024-01-01T00:00:00Z'
+    return new Date(source).toLocaleDateString()
+  }, [user?.joinedAt])
 
   const rank = useMemo(() => (contacts.length > 3 ? 'Guardian' : 'Contributor'), [contacts.length])
 
@@ -25,7 +44,7 @@ export function ProfilePage() {
             <div>
               <h1 className="text-3xl font-bold text-white">{user?.displayName || 'DHIP User'}</h1>
               <p className="text-sm text-gray-400">{user?.email}</p>
-              <p className="text-xs text-gray-500">Joined {new Date(user?.joinedAt || Date.now()).toLocaleDateString()}</p>
+              <p className="text-xs text-gray-500">Joined {joinedDate}</p>
             </div>
           </div>
 
@@ -69,21 +88,38 @@ export function ProfilePage() {
                 </table>
               </div>
 
-              <div className="mt-5 grid gap-3 md:grid-cols-4">
-                <input value={draft.name} onChange={(event) => setDraft((prev) => ({ ...prev, name: event.target.value }))} className="input-base" placeholder="Name" />
-                <input value={draft.phone} onChange={(event) => setDraft((prev) => ({ ...prev, phone: event.target.value }))} className="input-base" placeholder="Phone" />
-                <input value={draft.relationship} onChange={(event) => setDraft((prev) => ({ ...prev, relationship: event.target.value }))} className="input-base" placeholder="Relationship" />
+              <form
+                className="mt-5 grid gap-3 md:grid-cols-4"
+                onSubmit={handleSubmit((values) => {
+                  if (contacts.length >= 5) {
+                    toast.error('You can only store up to 5 contacts')
+                    return
+                  }
+                  setContacts((prev) => [...prev, { id: crypto.randomUUID(), ...values }])
+                  reset()
+                  toast.success('Contact added')
+                })}
+              >
+                <div>
+                  <input {...register('name')} className="input-base" placeholder="Name" />
+                  {errors.name ? <p className="mt-1 text-xs text-red-400">{errors.name.message}</p> : null}
+                </div>
+                <div>
+                  <input {...register('phone')} className="input-base" placeholder="Phone" />
+                  {errors.phone ? <p className="mt-1 text-xs text-red-400">{errors.phone.message}</p> : null}
+                </div>
+                <div>
+                  <input {...register('relationship')} className="input-base" placeholder="Relationship" />
+                  {errors.relationship ? <p className="mt-1 text-xs text-red-400">{errors.relationship.message}</p> : null}
+                </div>
                 <button
-                  onClick={() => {
-                    if (!draft.name || !draft.phone || !draft.relationship || contacts.length >= 5) return
-                    setContacts((prev) => [...prev, { id: crypto.randomUUID(), ...draft }])
-                    setDraft({ name: '', phone: '', relationship: '' })
-                  }}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-white"
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-white disabled:opacity-60"
                 >
-                  <Plus className="h-4 w-4" /> Add Contact
+                  <Plus className="h-4 w-4" /> {isSubmitting ? 'Saving...' : 'Add Contact'}
                 </button>
-              </div>
+              </form>
             </div>
           ) : null}
 

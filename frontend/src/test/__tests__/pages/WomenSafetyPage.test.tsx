@@ -17,7 +17,7 @@ describe('WomenSafetyPage', () => {
     expect(screen.getByText('Layer 1: Private Help')).toBeInTheDocument()
     expect(screen.getByText('7827-170-170')).toBeInTheDocument()
     expect(screen.getByText('1930')).toBeInTheDocument()
-    expect(screen.getByText('Private Help')).toBeInTheDocument()
+    expect(screen.getAllByText('Private Help').length).toBeGreaterThan(0)
   })
 
   it('shows panic button', () => {

@@ -1,0 +1,165 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "DHIP" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+        - generic [ref=e10]: DHIP
+      - navigation [ref=e11]:
+        - link "Home" [ref=e12] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e13]: Home
+        - link "Threat Check" [ref=e15] [cursor=pointer]:
+          - /url: /threat-check
+          - generic [ref=e16]: Threat Check
+        - link "Alerts" [ref=e18] [cursor=pointer]:
+          - /url: /alerts
+          - generic [ref=e19]: Alerts
+        - link "Evidence Vault" [ref=e21] [cursor=pointer]:
+          - /url: /evidence
+          - generic [ref=e22]: Evidence Vault
+        - link "Community" [ref=e24] [cursor=pointer]:
+          - /url: /community
+          - generic [ref=e25]: Community
+        - link "Features" [ref=e27] [cursor=pointer]:
+          - /url: /features
+          - generic [ref=e28]: Features
+        - link "About" [ref=e30] [cursor=pointer]:
+          - /url: /about
+          - generic [ref=e31]: About
+      - link "Login" [ref=e34] [cursor=pointer]:
+        - /url: /auth/login
+  - main [ref=e35]:
+    - generic [ref=e37]:
+      - navigation [ref=e38]:
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - generic [ref=e41]: D
+            - generic [ref=e42]: DHIP
+            - generic [ref=e43]: Threat Scanner
+          - generic [ref=e44]:
+            - button "🕐 History" [ref=e45] [cursor=pointer]
+            - button "Sign In" [ref=e46] [cursor=pointer]
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e50]: 🛡
+          - heading "Threat Intelligence Scanner" [level=1] [ref=e53]
+          - paragraph [ref=e54]: AI-powered analysis of URLs, phone numbers, emails, UPI IDs, and suspicious messages
+          - generic [ref=e55]:
+            - generic [ref=e56]:
+              - generic [ref=e57]: 2.4L+
+              - generic [ref=e58]: Threats Detected
+            - generic [ref=e59]:
+              - generic [ref=e60]: 98.2%
+              - generic [ref=e61]: Accuracy Rate
+            - generic [ref=e62]:
+              - generic [ref=e63]: < 2s
+              - generic [ref=e64]: Avg Response
+        - generic [ref=e65]:
+          - generic [ref=e67]:
+            - generic [ref=e69]: 🔍
+            - textbox "e.g. suspicious-site.com, +91-9999999999, upi@example" [ref=e70]
+            - button "Analyze Risk" [disabled] [ref=e71]:
+              - generic [ref=e72]: 🛡
+              - text: Analyze Risk
+          - generic [ref=e73]:
+            - button "url" [ref=e74] [cursor=pointer]:
+              - generic [ref=e75]: 🌐
+              - text: url
+            - button "phone" [ref=e76] [cursor=pointer]:
+              - generic [ref=e77]: 📱
+              - text: phone
+            - button "email" [ref=e78] [cursor=pointer]:
+              - generic [ref=e79]: 📧
+              - text: email
+            - button "upi" [ref=e80] [cursor=pointer]:
+              - generic [ref=e81]: 💳
+              - text: upi
+            - button "message" [ref=e82] [cursor=pointer]:
+              - generic [ref=e83]: 💬
+              - text: message
+          - paragraph [ref=e84]:
+            - text: Press
+            - generic [ref=e85]: Enter
+            - text: to analyze
+        - generic [ref=e86]:
+          - paragraph [ref=e87]: Try scanning these real-world examples
+          - generic [ref=e88]:
+            - button "pay-sbi-secure.xyz" [ref=e89] [cursor=pointer]:
+              - generic [ref=e90]: 🌐
+              - generic [ref=e91]:
+                - paragraph [ref=e92]: Phishing URL
+                - paragraph [ref=e93]: pay-sbi-secure.xyz
+              - generic [ref=e94]: HIGH RISK
+            - button "+91 9123456789" [ref=e96] [cursor=pointer]:
+              - generic [ref=e97]: 📱
+              - generic [ref=e98]:
+                - paragraph [ref=e99]: Digital Arrest
+                - paragraph [ref=e100]: +91 9123456789
+              - generic [ref=e101]: HIGH RISK
+            - button "cashprize2024@ybl" [ref=e103] [cursor=pointer]:
+              - generic [ref=e104]: 💳
+              - generic [ref=e105]:
+                - paragraph [ref=e106]: UPI Scam
+                - paragraph [ref=e107]: cashprize2024@ybl
+              - generic [ref=e108]: MEDIUM RISK
+            - button "hr.infosys.jobs@gmail.com" [ref=e110] [cursor=pointer]:
+              - generic [ref=e111]: 📧
+              - generic [ref=e112]:
+                - paragraph [ref=e113]: Job Fraud Email
+                - paragraph [ref=e114]: hr.infosys.jobs@gmail.com
+              - generic [ref=e115]: MEDIUM RISK
+      - generic [ref=e117]: "DHIP — Digital Harm Intelligence Platform · All scans are anonymous · Report abuse: 1930"
+  - contentinfo [ref=e118]:
+    - generic [ref=e119]:
+      - generic [ref=e120]:
+        - heading "DHIP" [level=3] [ref=e121]
+        - paragraph [ref=e122]: Synthetic Sentinel Intelligence Platform.
+        - generic [ref=e123]:
+          - button "Twitter" [ref=e124] [cursor=pointer]:
+            - img [ref=e125]
+          - button "Github" [ref=e127] [cursor=pointer]:
+            - img [ref=e128]
+          - button "Linkedin" [ref=e131] [cursor=pointer]:
+            - img [ref=e132]
+      - generic [ref=e136]:
+        - heading "Capabilities" [level=4] [ref=e137]
+        - list [ref=e138]:
+          - listitem [ref=e139]:
+            - link "Threat Check" [ref=e140] [cursor=pointer]:
+              - /url: /threat-check
+          - listitem [ref=e141]:
+            - link "Alerts" [ref=e142] [cursor=pointer]:
+              - /url: /alerts
+          - listitem [ref=e143]:
+            - link "Community" [ref=e144] [cursor=pointer]:
+              - /url: /community
+          - listitem [ref=e145]:
+            - link "Evidence Vault" [ref=e146] [cursor=pointer]:
+              - /url: /evidence
+          - listitem [ref=e147]:
+            - link "Features" [ref=e148] [cursor=pointer]:
+              - /url: /features
+          - listitem [ref=e149]:
+            - link "About" [ref=e150] [cursor=pointer]:
+              - /url: /about
+      - generic [ref=e151]:
+        - heading "Protocol" [level=4] [ref=e152]
+        - list [ref=e153]:
+          - listitem [ref=e154]:
+            - link "Women Safety Hub" [ref=e155] [cursor=pointer]:
+              - /url: /women-safety
+          - listitem [ref=e156]:
+            - link "Adult Safety" [ref=e157] [cursor=pointer]:
+              - /url: /adult-safety
+          - listitem [ref=e158]:
+            - link "Report" [ref=e159] [cursor=pointer]:
+              - /url: /community/report
+      - generic [ref=e160]:
+        - heading "Intelligence Node" [level=4] [ref=e161]
+        - generic [ref=e164]: "Operational: 0ms latency"
+    - generic [ref=e165]: © 2026 DHIP — Synthetic Sentinel Intelligence · Developed by Anmol
+```

@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Group, InstancedMesh, Object3D } from 'three'
 import { useMouseParallax } from '../../hooks/useMouseParallax'
 
@@ -35,15 +35,14 @@ export function ParticleField({
     return count
   }, [count])
 
-  const particles = useMemo<ParticleItem[]>(
-    () => Array.from({ length: finalCount }, () => ({
+  const [particles] = useState<ParticleItem[]>(() =>
+    Array.from({ length: finalCount }, () => ({
       x: (Math.random() - 0.5) * 16,
       y: (Math.random() - 0.5) * 14,
       z: (Math.random() - 0.5) * 12,
       driftX: (Math.random() - 0.5) * 0.003,
       driftY: Math.random() * speed + 0.001,
     })),
-    [finalCount, speed],
   )
 
   useFrame(() => {
@@ -72,9 +71,11 @@ export function ParticleField({
   })
 
   useEffect(() => {
+    const mesh = meshRef.current
+
     return () => {
-      meshRef.current?.geometry.dispose()
-      const material = meshRef.current?.material
+      mesh?.geometry.dispose()
+      const material = mesh?.material
       if (Array.isArray(material)) {
         material.forEach((item) => item.dispose())
       } else {

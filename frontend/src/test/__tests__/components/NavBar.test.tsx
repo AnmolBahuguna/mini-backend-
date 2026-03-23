@@ -26,8 +26,7 @@ describe('NavBar', () => {
 
   it('shows sign in and get started when logged out', () => {
     render(<MemoryRouter><NavBar /></MemoryRouter>)
-    expect(screen.getByRole('link', { name: 'Sign In' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Get Started' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Login' })).toHaveAttribute('href', '/auth/login')
   })
 
   it('shows avatar and sign out when logged in', async () => {

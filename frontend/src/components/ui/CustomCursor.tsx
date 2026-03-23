@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react'
 
 export function CustomCursor() {
-  const [enabled, setEnabled] = useState(false)
+  const [enabled] = useState(() => {
+    if (typeof window === 'undefined') return false
+    const coarse = window.matchMedia('(pointer: coarse)').matches
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    return !coarse && !reduced
+  })
   const [x, setX] = useState(0)
   const [y, setY] = useState(0)
   const [fx, setFx] = useState(0)
   const [fy, setFy] = useState(0)
-
-  useEffect(() => {
-    const coarse = window.matchMedia('(pointer: coarse)').matches
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    setEnabled(!coarse && !reduced)
-  }, [])
 
   useEffect(() => {
     if (!enabled) return

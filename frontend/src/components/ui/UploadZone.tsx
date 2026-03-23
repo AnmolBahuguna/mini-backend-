@@ -17,6 +17,8 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
 
   return (
     <label
+      role="button"
+      aria-label="Upload New Evidence"
       className={className}
       onDragOver={(event) => {
         event.preventDefault()
@@ -40,7 +42,8 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
         }}
       />
       <UploadCloud className="mx-auto mb-3 h-10 w-10 text-blue-300" />
-      <p className="text-base font-semibold text-white">Drag & drop evidence files</p>
+      <p className="text-base font-semibold text-white">Upload New Evidence</p>
+      <p className="mt-1 text-sm text-gray-400">Drag & drop evidence files</p>
       <p className="mt-1 text-sm text-gray-400">or click to browse from your device</p>
     </label>
   )

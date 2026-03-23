@@ -1,6 +1,7 @@
 import toast from 'react-hot-toast'
 import { useState } from 'react'
 import { UploadZone } from '../components/ui/UploadZone'
+import { api } from '../lib/api'
 
 type EvidenceFile = {
   id: string
@@ -17,7 +18,7 @@ const initialFiles: EvidenceFile[] = [
 export function EvidenceVaultPage() {
   const [files, setFiles] = useState<EvidenceFile[]>(initialFiles)
 
-  const handleFilesSelected = (selectedFiles: File[]) => {
+  const handleFilesSelected = async (selectedFiles: File[]) => {
     if (selectedFiles.length === 0) return
     const mapped = selectedFiles.map((file, index) => ({
       id: `${Date.now()}-${index}`,
@@ -27,6 +28,18 @@ export function EvidenceVaultPage() {
     }))
     setFiles((prev) => [...mapped, ...prev])
     toast.success(`${mapped.length} file(s) added to vault queue`)
+
+    try {
+      const formData = new FormData()
+      selectedFiles.forEach((file) => formData.append('files', file))
+      await api.post('/api/evidence/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      toast.success('Files uploaded to vault')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Upload failed. Please try again.'
+      toast.error(message)
+    }
   }
 
   return (

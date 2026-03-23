@@ -3,9 +3,9 @@ import confetti from 'canvas-confetti'
 import { Check, Eye, EyeOff, Lock, Mail, MapPin, Phone, ShieldCheck, User } from 'lucide-react'
 import { Canvas } from '@react-three/fiber'
 import { Suspense, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import { FloatingShield } from '../../components/3d/FloatingShield'
 import { FloatingLabel } from '../../components/ui/FloatingLabel'
@@ -34,28 +34,30 @@ type Step = 1 | 2 | 3
 export function SignupPage() {
   const { user, signUp } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const returnUrl = new URLSearchParams(location.search).get('returnUrl')
   const [step, setStep] = useState<Step>(1)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const {
     register,
-    watch,
     trigger,
     handleSubmit,
-    formState: { errors, isSubmitting, isValid },
+    control,
+    formState: { errors, isSubmitting },
   } = useForm<SignupInput>({ resolver: zodResolver(schema), mode: 'onChange' })
 
   const canRenderCanvas = typeof window !== 'undefined' && 'ResizeObserver' in window
 
-  const passwordStrength = watch('password') || ''
-
-  if (user) return <Navigate to="/" replace />
+  const passwordStrength = useWatch({ control, name: 'password' }) || ''
 
   const stepValidity = useMemo(() => ({
     1: ['fullName', 'email'] as const,
     2: ['phone', 'state'] as const,
     3: ['password', 'confirmPassword', 'terms'] as const,
   }), [])
+
+  if (user) return <Navigate to="/" replace />
 
   const goNext = async () => {
     const valid = await trigger(stepValidity[step], { shouldFocus: true })
@@ -67,7 +69,7 @@ export function SignupPage() {
       await signUp(values)
       confetti({ particleCount: 120, spread: 80, colors: ['#0066FF', '#8B5CF6', '#00F5FF'] })
       toast.success('Account created! Check email to verify.')
-      navigate('/')
+      navigate(returnUrl || '/')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Signup failed')
     }
@@ -184,7 +186,7 @@ export function SignupPage() {
 
                 <div className="grid grid-cols-2 gap-2">
                   <button type="button" onClick={() => setStep(2)} className="rounded-xl border border-white/15 py-3 text-sm text-white/80">← Back</button>
-                  <GradientButton className="w-full" type="submit" loading={isSubmitting} disabled={!isValid || isSubmitting}>{isSubmitting ? 'Creating account...' : 'Create Account'}</GradientButton>
+                  <GradientButton className="w-full" type="submit" loading={isSubmitting} disabled={isSubmitting}>{isSubmitting ? 'Creating account...' : 'Create Account'}</GradientButton>
                 </div>
               </>
             ) : null}

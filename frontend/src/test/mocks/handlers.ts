@@ -1,13 +1,28 @@
 import { http, HttpResponse } from 'msw'
 
 export const handlers = [
+  http.get('http://localhost:8000/api/dashboard/', async () => {
+    return HttpResponse.json({
+      total_reports: 3600,
+      accuracy_rate: 97.5,
+      total_contributors: 52000,
+      threats_prevented: 1890,
+    })
+  }),
+
   http.post('http://localhost:8000/api/threat-check/', async () => {
     return HttpResponse.json({
       id: 'threat-1',
-      drs_score: 5.0,
-      risk_level: 'MEDIUM',
+      entity: 'example.com',
+      entity_type: 'url',
+      drs_score: 9.1,
+      risk_level: 'HIGH',
+      scam_type: 'VERIFIED',
+      reports_count: 3,
+      geo_tags: ['Delhi'],
       api_results: {
         virustotal: '12/70',
+        safeBrowsing: 'Flagged as phishing',
       },
       cached: false,
     })

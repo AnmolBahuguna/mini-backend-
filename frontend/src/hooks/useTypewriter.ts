@@ -11,10 +11,9 @@ export function useTypewriter({ text, speed = 24, startDelay = 0 }: TypewriterOp
 
   useEffect(() => {
     let index = 0
-    let timeoutId: ReturnType<typeof setTimeout> | undefined
     let intervalId: ReturnType<typeof setInterval> | undefined
 
-    timeoutId = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       intervalId = setInterval(() => {
         index += 1
         setDisplayedText(text.slice(0, index))
@@ -25,7 +24,7 @@ export function useTypewriter({ text, speed = 24, startDelay = 0 }: TypewriterOp
     }, startDelay)
 
     return () => {
-      if (timeoutId) clearTimeout(timeoutId)
+      clearTimeout(timeoutId)
       if (intervalId) clearInterval(intervalId)
     }
   }, [text, speed, startDelay])

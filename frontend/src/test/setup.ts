@@ -40,9 +40,16 @@ beforeEach(() => {
     dispatchEvent: vi.fn(),
   })))
 
-  vi.stubGlobal('IntersectionObserver', vi.fn().mockImplementation(() => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-  })))
+  class MockIntersectionObserver {
+    constructor() {}
+    readonly root = null
+    readonly rootMargin = ''
+    readonly thresholds: number[] = []
+    observe = vi.fn()
+    unobserve = vi.fn()
+    disconnect = vi.fn()
+    takeRecords = vi.fn()
+  }
+
+  vi.stubGlobal('IntersectionObserver', MockIntersectionObserver)
 })

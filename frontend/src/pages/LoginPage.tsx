@@ -1,2 +1,7 @@
-export { LoginPage } from './auth/LoginPage'
-export { default } from './auth/LoginPage'
+import AuthLoginPage from './auth/LoginPage'
+
+export function LoginPage() {
+	return <AuthLoginPage />
+}
+
+export default LoginPage

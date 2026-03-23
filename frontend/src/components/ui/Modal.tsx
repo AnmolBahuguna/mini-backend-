@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import type { PropsWithChildren } from 'react'
+import { useEffect, useRef } from 'react'
 
 interface ModalProps extends PropsWithChildren {
   open: boolean
@@ -8,6 +9,35 @@ interface ModalProps extends PropsWithChildren {
 }
 
 export function Modal({ open, onClose, title, children }: ModalProps) {
+  const dialogRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const focusable = dialogRef.current?.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    focusable?.[0]?.focus()
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.stopPropagation()
+        onClose()
+        return
+      }
+      if (event.key !== 'Tab' || !focusable || focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [open, onClose])
+
   return (
     <AnimatePresence>
       {open ? (
@@ -25,6 +55,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: 0.2 }}
             onClick={(event) => event.stopPropagation()}
+            ref={dialogRef}
           >
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-bold text-white">{title}</h3>

@@ -1,3 +1,4 @@
+import type { InternalAxiosRequestConfig } from 'axios'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { api } from '../../../lib/api'
 
@@ -19,7 +20,7 @@ describe('api lib', () => {
       throw new Error('Request interceptor handler is missing')
     }
 
-    const config = await handler({ headers: {} } as any)
+    const config = await handler({ headers: {} } as InternalAxiosRequestConfig)
     expect(config.headers.Authorization).toBeUndefined()
   })
 

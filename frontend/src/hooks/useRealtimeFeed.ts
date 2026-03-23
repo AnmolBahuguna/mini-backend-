@@ -4,8 +4,10 @@ import { supabase } from '../lib/supabase'
 
 export function useRealtimeAlerts() {
   const queryClient = useQueryClient()
+  const isTest = import.meta.env.MODE === 'test'
 
   useEffect(() => {
+    if (isTest) return
     const client = supabase
     if (!client) return
 
@@ -19,13 +21,15 @@ export function useRealtimeAlerts() {
     return () => {
       void client.removeChannel(channel)
     }
-  }, [queryClient])
+  }, [isTest, queryClient])
 }
 
 export function useRealtimeReports() {
   const queryClient = useQueryClient()
+  const isTest = import.meta.env.MODE === 'test'
 
   useEffect(() => {
+    if (isTest) return
     const client = supabase
     if (!client) return
 
@@ -39,5 +43,5 @@ export function useRealtimeReports() {
     return () => {
       void client.removeChannel(channel)
     }
-  }, [queryClient])
+  }, [isTest, queryClient])
 }

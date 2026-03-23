@@ -21,6 +21,7 @@ export interface ThreatCheckResponse {
   geo_tags: string[]
   entity: string
   entity_type: string
+  api_results?: Record<string, string>
   ai_summary?: string
 }
 

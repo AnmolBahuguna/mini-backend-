@@ -1,4 +1,5 @@
 import axios from 'axios'
+import toast from 'react-hot-toast'
 import { getSupabaseAccessToken } from './supabase'
 
 export const api = axios.create({
@@ -22,7 +23,16 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error?.response?.status === 401) {
-      window.location.assign('/auth/login')
+      if (typeof window !== 'undefined') {
+        const path = window.location?.pathname || ''
+        const search = window.location?.search || ''
+        const raw = `${path}${search}`
+        const returnUrl = raw ? encodeURIComponent(raw) : ''
+        window.location.assign(`/auth/login${returnUrl ? `?returnUrl=${returnUrl}` : ''}`)
+      }
+    }
+    if (error?.response?.status === 500) {
+      toast.error('Something went wrong. Please try again.')
     }
     return Promise.reject(error)
   },

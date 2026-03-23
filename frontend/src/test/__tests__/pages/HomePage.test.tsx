@@ -1,58 +1,57 @@
 import { render, screen } from '@testing-library/react'
+import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { describe, expect, it, vi } from 'vitest'
 import { HomePage } from '../../../pages/HomePage'
 
-vi.mock('../../../components/home/HeroSection', () => ({
-  HeroSection: () => <div>AI-Powered Cyber Intelligence</div>,
-}))
-
-vi.mock('../../../components/home/BentoGrid', () => ({
-  BentoGrid: () => <div>Built as a Premium Intelligence Grid</div>,
-}))
-
-vi.mock('../../../components/home/HowItWorks', () => ({
-  HowItWorks: () => <div>Threat Intelligence Scanner</div>,
-}))
-
-vi.mock('../../../components/home/StatsSection', () => ({
-  StatsSection: () => <div>Threats Detected (12 months)</div>,
-}))
-
-vi.mock('../../../components/home/Testimonials', () => ({
-  Testimonials: () => <div>Trusted voices</div>,
-}))
-
-vi.mock('../../../components/home/CTASection', () => ({
-  CTASection: () => (
+// Keep count-up deterministic for tests
+vi.mock('../../../components/ui/StatsCounter', () => ({
+  StatsCounter: ({ value, suffix = '', label }: { value: number; suffix?: string; label?: string }) => (
     <div>
-      <div>Join 50,000+ Indians staying safe online</div>
-      <a href="/auth/signup">Create Free Account</a>
-      <a href="/features">See How It Works</a>
+      <span>{value}{suffix}</span>
+      {label ? <span>{label}</span> : null}
     </div>
   ),
 }))
 
+const renderWithClient = (ui: ReactNode) => {
+  const queryClient = new QueryClient()
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>{ui}</MemoryRouter>
+    </QueryClientProvider>,
+  )
+}
+
 describe('HomePage', () => {
-  it('renders redesigned hero and capability sections', () => {
-    render(<MemoryRouter><HomePage /></MemoryRouter>)
+  it('renders hero headline and primary CTAs', () => {
+    renderWithClient(<HomePage />)
 
-    expect(screen.getByText('AI-Powered Cyber Intelligence')).toBeInTheDocument()
-    expect(screen.getByText('Built as a Premium Intelligence Grid')).toBeInTheDocument()
-    expect(screen.getByText('Threat Intelligence Scanner')).toBeInTheDocument()
+    expect(screen.getByText("India's Predictive Cyber Intelligence Platform")).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Analyze Threat' })).toHaveAttribute('href', '/threat-check')
+    expect(screen.getByRole('link', { name: 'Women Safety Hub' })).toHaveAttribute('href', '/women-safety')
+    expect(screen.getByRole('link', { name: 'Community Reports' })).toHaveAttribute('href', '/community')
   })
 
-  it('renders stats and final CTA copy', () => {
-    render(<MemoryRouter><HomePage /></MemoryRouter>)
+  it('shows live ticker and key sections', () => {
+    renderWithClient(<HomePage />)
 
-    expect(screen.getByText('Threats Detected (12 months)')).toBeInTheDocument()
-    expect(screen.getByText('Join 50,000+ Indians staying safe online')).toBeInTheDocument()
+    expect(screen.getByLabelText('Live threat ticker')).toBeInTheDocument()
+    expect(screen.getByText('Intelligence at Every Layer')).toBeInTheDocument()
+    expect(screen.getByText('How DHIP Works')).toBeInTheDocument()
+    expect(screen.getByText('10 Integrated APIs')).toBeInTheDocument()
   })
 
-  it('has CTA links for signup and features', () => {
-    render(<MemoryRouter><HomePage /></MemoryRouter>)
+  it('renders stats and final CTA block', () => {
+    renderWithClient(<HomePage />)
 
-    expect(screen.getByRole('link', { name: 'Create Free Account' })).toHaveAttribute('href', '/auth/signup')
-    expect(screen.getByRole('link', { name: 'See How It Works' })).toHaveAttribute('href', '/features')
+    expect(screen.getByText('Active Reports')).toBeInTheDocument()
+    expect(screen.getByText('Detection Accuracy')).toBeInTheDocument()
+    expect(screen.getByText('Contributors')).toBeInTheDocument()
+    expect(screen.getByText('Threats Prevented')).toBeInTheDocument()
+    expect(screen.getByText('Join the Movement. Protect Your India.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Start Checking Threats' })).toHaveAttribute('href', '/threat-check')
+    expect(screen.getByRole('link', { name: 'Report Anonymously' })).toHaveAttribute('href', '/community/report')
   })
 })

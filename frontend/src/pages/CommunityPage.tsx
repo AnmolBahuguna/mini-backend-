@@ -1,21 +1,26 @@
 import confetti from 'canvas-confetti'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Modal } from '../components/ui/Modal'
-import { ThreatCard } from '../components/threat/ThreatCard'
 import { useCreateReport, useReports } from '../hooks/useReports'
 import { useRealtimeReports } from '../hooks/useRealtimeFeed'
+import type { CommunityReport } from '../types/api'
+import type { ThreatReport } from '../types/threat'
+import './CommunityPage.css'
 
 export function CommunityPage() {
   useRealtimeReports()
   const reportsQuery = useReports()
   const createReport = useCreateReport()
+  const navigate = useNavigate()
 
   const [open, setOpen] = useState(false)
   const [entity, setEntity] = useState('')
   const [scamType, setScamType] = useState('Phishing')
   const [description, setDescription] = useState('')
+  const [filterType, setFilterType] = useState('All Types')
+  const [filterState, setFilterState] = useState('All States')
 
   const totals = useMemo(() => ({
     activeReports: reportsQuery.data?.length ?? 0,
@@ -24,7 +29,36 @@ export function CommunityPage() {
     prevented: (reportsQuery.data?.length ?? 0) * 11,
   }), [reportsQuery.data?.length])
 
-  const submitReport = async () => {
+  const reports = useMemo(() => {
+    const fallbackReports: ThreatReport[] = [
+      {
+        id: 'r-fallback-1',
+        title: 'UPI Fraud — Fake KYC Update',
+        region: 'Mumbai',
+        timeAgo: '5m ago',
+        description: 'Scammers sending fake RBI KYC update links requesting OTP.',
+        similarCount: 18,
+        level: 'HIGH',
+      },
+    ]
+
+    return reportsQuery.data ?? fallbackReports
+  }, [reportsQuery.data])
+
+  const filteredReports = useMemo(() => {
+    return reports.filter((report) => {
+      const typeOk =
+        filterType === 'All Types'
+        || ('scamType' in report && report.scamType === filterType)
+        || ('level' in report && report.level === filterType)
+      const stateOk = filterState === 'All States' || report.region === filterState
+      return typeOk && stateOk
+    })
+  }, [filterState, filterType, reports])
+
+  const showSkeletons = reportsQuery.isLoading && filteredReports.length === 0
+
+  const submitReport = useCallback(async () => {
     if (!entity.trim() || !description.trim()) {
       toast.error('Entity and description are required')
       return
@@ -41,70 +75,187 @@ export function CommunityPage() {
     } catch {
       toast.error('Failed to submit report')
     }
-  }
+  }, [createReport, description, entity, scamType])
 
   return (
-    <div>
-      <section className="border-b border-gray-700 bg-gray-800/60 py-5">
-        <div className="page-wrap grid gap-4 text-center sm:grid-cols-2 xl:grid-cols-4">
-          <div><p className="text-2xl font-black text-blue-300">{totals.activeReports.toLocaleString()}</p><p className="text-xs text-gray-400">Active Reports</p></div>
-          <div><p className="text-2xl font-black text-emerald-300">{totals.accuracy}%</p><p className="text-xs text-gray-400">Accuracy Rate</p></div>
-          <div><p className="text-2xl font-black text-violet-300">{Math.round(totals.contributors / 1000)}K</p><p className="text-xs text-gray-400">Contributors</p></div>
-          <div><p className="text-2xl font-black text-cyan-300">{totals.prevented.toLocaleString()}</p><p className="text-xs text-gray-400">Threats Prevented</p></div>
+    <div className="community-shell">
+      <section className="comm-hero">
+        <div className="page-wrap">
+          <div className="comm-proto">Protocol 09: Community Intel</div>
+          <div className="comm-hero-grid">
+            <div className="comm-hero-text">
+              <p className="comm-kicker">Signal Hub</p>
+              <h1 className="comm-title">Decentralized reporting network for cyber-resilience.</h1>
+              <p className="comm-sub">Real-time data streams from the frontlines of digital defense. Collective intelligence to neutralize threats before they spread.</p>
+              <div className="comm-tags">
+                <span>Realtime</span>
+                <span>Anon by default</span>
+                <span>DRS enrichment</span>
+              </div>
+              <button
+                type="button"
+                className="comm-secondary"
+                onClick={() => navigate(-1)}
+                aria-label="Go back"
+              >
+                ← Back
+              </button>
+            </div>
+
+            <div className="comm-metric-grid">
+              <div className="comm-metric-card">
+                <p className="comm-metric-label">Active Reports</p>
+                <p className="comm-metric-value">{totals.activeReports.toLocaleString()}+</p>
+              </div>
+              <div className="comm-metric-card">
+                <p className="comm-metric-label">Threats Blocked</p>
+                <p className="comm-metric-value text-green">{totals.prevented.toLocaleString()}</p>
+              </div>
+              <div className="comm-metric-card">
+                <p className="comm-metric-label">Active Nodes</p>
+                <p className="comm-metric-value text-cyan">{Math.round(totals.contributors / 1000)}K</p>
+              </div>
+              <div className="comm-metric-card">
+                <p className="comm-metric-label">Accuracy</p>
+                <p className="comm-metric-value text-amber">{totals.accuracy}%</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="page-wrap py-8">
-        <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
-          <div>
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-              <h2 className="text-xl font-black text-white">Community Intelligence Feed</h2>
-              <div className="flex gap-2">
-                <select className="rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-xs text-gray-300"><option>All Types</option></select>
-                <select className="rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-xs text-gray-300"><option>All States</option></select>
-              </div>
+      <section className="page-wrap comm-main">
+        <div className="comm-map-card">
+          <div className="comm-map-head">
+            <div>
+              <p className="comm-map-label">Tactical Heatmap</p>
+              <p className="comm-map-region">Region: Subcontinent Asia / India</p>
             </div>
-
-            <div className="space-y-3">
-              {reportsQuery.isLoading ? (
-                Array.from({ length: 4 }).map((_, idx) => <div key={idx} className="h-28 animate-pulse rounded-2xl bg-white/5" />)
-              ) : reportsQuery.isError ? (
-                <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">Failed to load feed.</div>
-              ) : reportsQuery.data?.map((report) => (
-                <Link key={report.id} to={`/reports/${report.id}`}>
-                  <ThreatCard
-                    report={{
-                      id: report.id,
-                      title: report.title,
-                      region: report.region,
-                      timeAgo: report.timeAgo,
-                      description: report.description,
-                      similarCount: report.similarCount,
-                      level: report.severity,
-                    }}
-                  />
-                </Link>
-              ))}
+            <span className="comm-live-pill">● Live feed</span>
+          </div>
+          <div className="comm-map-surface">
+            <div className="comm-signal critical" style={{ left: '46%', top: '38%' }}>
+              <span className="comm-signal-dot" />
+              <span className="comm-signal-meta">High-risk: NCR · 92%</span>
+            </div>
+            <div className="comm-signal verified" style={{ left: '60%', top: '62%' }}>
+              <span className="comm-signal-dot" />
+              <span className="comm-signal-meta">Verified: Bengaluru</span>
+            </div>
+            <div className="comm-signal sentinel" style={{ left: '35%', top: '54%' }}>
+              <span className="comm-signal-dot" />
+              <span className="comm-signal-meta">Sentinel: Mumbai nodes</span>
             </div>
           </div>
+          <div className="comm-legend">
+            <span className="legend-item"><span className="legend-dot red" />Critical Threat</span>
+            <span className="legend-item"><span className="legend-dot amber" />Initiated Action</span>
+            <span className="legend-item"><span className="legend-dot cyan" />Active Sentinel</span>
+          </div>
+        </div>
 
-          <aside>
-            <div className="mb-4 rounded-2xl border border-gray-700 bg-gray-800/60 p-5">
-              <button onClick={() => setOpen(true)} className="mb-4 flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-bold text-white">📋 Report a Threat</button>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">How It Works</p>
-              <ul className="space-y-2 text-sm text-gray-300">
-                <li>1. Submit anonymously</li>
-                <li>2. AI enriches with DRS</li>
-                <li>3. Community verifies signal</li>
-                <li>4. Region gets instant alerts</li>
-                <li>5. One report protects thousands</li>
-              </ul>
+        <div className="comm-feed-card">
+          <div className="comm-feed-head">
+            <div>
+              <p className="comm-feed-kicker">Community Intel</p>
+              <h3 className="comm-feed-title">Community Intelligence Feed</h3>
             </div>
-            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5">
-              <h3 className="text-sm font-bold text-emerald-300">🛡 Privacy Guarantee</h3>
-              <p className="mt-2 text-sm text-gray-300">Reports are anonymous by default. Evidence is client-side encrypted with zero-knowledge storage approach.</p>
+            <div className="comm-feed-filter">Threats · Signals</div>
+          </div>
+
+          <div className="comm-feed-filters">
+            <select aria-label="Filter by type" value={filterType} onChange={(event) => setFilterType(event.target.value)}>
+              <option>All Types</option>
+              <option>Phishing</option>
+              <option>UPI Fraud</option>
+              <option>Digital Arrest</option>
+              <option>Loan App</option>
+              <option>Job Scam</option>
+              <option>HIGH</option>
+              <option>MEDIUM</option>
+              <option>LOW</option>
+            </select>
+            <select aria-label="Filter by state" value={filterState} onChange={(event) => setFilterState(event.target.value)}>
+              <option>All States</option>
+              <option>Delhi NCR</option>
+              <option>Mumbai</option>
+              <option>Bengaluru</option>
+              <option>Hyderabad</option>
+              <option>Jaipur</option>
+            </select>
+          </div>
+
+          {reportsQuery.isError ? (
+            <div className="comm-warning">Failed to load feed. Showing cached entries.</div>
+          ) : null}
+
+          <div className="comm-feed-list">
+            {showSkeletons ? (
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={`skeleton-${index}`} className="comm-feed-item comm-feed-skeleton" aria-hidden="true">
+                  <div className="comm-feed-meta">
+                    <span className="comm-dot" />
+                    <span className="comm-feed-type" />
+                    <span className="comm-feed-region" />
+                    <span className="comm-feed-time" />
+                  </div>
+                  <p className="comm-feed-body" />
+                  <p className="comm-feed-desc" />
+                </div>
+              ))
+            ) : (
+              filteredReports.map((report) => {
+                const threatLevel = (report as ThreatReport).level ?? (report as CommunityReport).severity ?? 'MEDIUM'
+                const tone = threatLevel === 'HIGH' ? 'red' : threatLevel === 'LOW' ? 'cyan' : 'amber'
+
+                return (
+                  <Link key={report.id} to={`/reports/${report.id}`} className="comm-feed-item">
+                    <div className="comm-feed-meta">
+                      <span className={`comm-dot ${tone}`} />
+                      <span className="comm-feed-type">{threatLevel}</span>
+                      <span className="comm-feed-region">{report.region}</span>
+                      <span className="comm-feed-time">{report.timeAgo ?? 'Just now'}</span>
+                    </div>
+                    <p className="comm-feed-body">{report.title}</p>
+                    <p className="comm-feed-desc">{report.description}</p>
+                  </Link>
+                )
+              })
+            )}
+          </div>
+
+          <div className="comm-cta-row">
+            <button className="comm-primary" onClick={() => setOpen(true)}>Report Anonymously</button>
+            <Link to="/community/report" className="comm-secondary">Report a Threat</Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="page-wrap comm-archive">
+        <button className="comm-archive-btn">View Archive Database</button>
+      </section>
+
+      <section className="comm-narratives">
+        <div className="page-wrap">
+          <div className="comm-narr-header">
+            <h3>Survivor Narratives</h3>
+            <div className="comm-nav-dots" aria-hidden="true">
+              <span />
+              <span />
             </div>
-          </aside>
+          </div>
+          <div className="comm-narr-grid">
+            <div className="comm-narr-card">
+              <div className="comm-narr-id">ID: W08-2921</div>
+              <p className="comm-narr-quote">“The phishing attempt was so sophisticated it used my bank’s actual IVR voice. DHIP flagged the outgoing connection before any data was lost.”</p>
+              <div className="comm-narr-meta"><span>Anonymous user</span><span className="verified">Verified</span></div>
+            </div>
+            <div className="comm-narr-card">
+              <div className="comm-narr-id">ID: RMR-0182</div>
+              <p className="comm-narr-quote">“After the data breach, I felt helpless. The community here helped me secure my credentials and provided the reporting tools I needed.”</p>
+              <div className="comm-narr-meta"><span>Network admin</span><span className="verified">Verified</span></div>
+            </div>
+          </div>
         </div>
       </section>
 
