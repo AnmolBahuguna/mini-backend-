@@ -1,73 +1,47 @@
-# React + TypeScript + Vite
+# DHIP Cyber Safety Platform (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript + Vite SPA for threat scanning, alerts, community reporting, evidence vault, and safety tooling.
 
-Currently, two official plugins are available:
+## Stack
+- React 18, Vite, TypeScript, Tailwind CSS, Framer Motion
+- React Router 7, TanStack Query for data fetching/caching
+- Supabase client for auth/session; Axios API client with bearer injection
+- Charts via Chart.js/Recharts; 3D via three.js/@react-three/fiber
+- Tests: Vitest + Testing Library; E2E: Playwright
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Quickstart
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Environment
+Create `.env.local` with:
 ```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_API_BASE_URL=http://localhost:8000 # optional override
+```
+
+## Scripts
+- `npm run dev` – start Vite dev server
+- `npm run build` – type-check + production build
+- `npm run preview` – serve built assets
+- `npm run lint` – lint sources
+- `npm run test` – unit/component tests (Vitest)
+- `npm run test:e2e` – Playwright E2E
+
+## Notable Pages
+- Home – animated overview and CTAs
+- Threat Check – scan URLs/phones/emails/UPI/messages with DRS-style score
+- Alerts – regional live alert feed with filters
+- Community – crowd-sourced reports and heatmap
+- Women/Adult Safety – panic flows, helplines, playbooks
+- Evidence Vault – encrypted upload UI (local state)
+- Features – DHIP immersive marketing page with interactive mini-demos for scanner/alerts/women safety/vault/community
+- About/Auth/Profile/Report/Report Detail – supporting flows and shells
+
+## Notes
+- Several data flows currently use mock/local data; wire to backend/Supabase as needed.
+- WomenSafety chatbot calls Anthropic API endpoint; proxy and secure keys before production.
