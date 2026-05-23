@@ -223,7 +223,10 @@
   display: inline-block;
 }
 
-.legend-dot.red { background: #f43f5e; }
+.legend-dot.red { background: #DC2626; }
+.legend-dot.orange { background: #F97316; }
+.legend-dot.yellow { background: #FBBF24; }
+.legend-dot.green { background: #10B981; }
 .legend-dot.amber { background: #f59e0b; }
 .legend-dot.cyan { background: #22d3ee; }
 

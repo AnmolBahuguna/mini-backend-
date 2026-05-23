@@ -21,7 +21,7 @@ export function useThreatCheck() {
   const [error, setError] = useState<string | null>(null)
   const intervalRef = useRef<number | null>(null)
 
-  const analyze = async (entity: string, entityType: 'url' | 'phone' | 'upi' | 'ip') => {
+  const analyze = async (entity: string, entityType: 'url' | 'domain' | 'phone' | 'email' | 'upi' | 'ip') => {
     setError(null)
     setLoading(true)
     if (intervalRef.current) {

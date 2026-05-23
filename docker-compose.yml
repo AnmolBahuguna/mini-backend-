@@ -1,0 +1,72 @@
+services:
+  django:
+    build:
+      context: ./backend
+    container_name: dhip-django
+    env_file:
+      - ./.env
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  celery:
+    build:
+      context: ./backend
+    container_name: dhip-celery
+    env_file:
+      - ./.env
+    volumes:
+      - ./backend:/app
+    command: celery -A dhip worker -l info --concurrency=4
+    depends_on:
+      redis:
+        condition: service_healthy
+      django:
+        condition: service_started
+
+  celery-beat:
+    build:
+      context: ./backend
+    container_name: dhip-celery-beat
+    env_file:
+      - ./.env
+    volumes:
+      - ./backend:/app
+    command: celery -A dhip beat -l info
+    depends_on:
+      redis:
+        condition: service_healthy
+      django:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: dhip-frontend
+    env_file:
+      - ./.env
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    depends_on:
+      django:
+        condition: service_started
+
+  redis:
+    image: redis:7-alpine
+    container_name: dhip-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

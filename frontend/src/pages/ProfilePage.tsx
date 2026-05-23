@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { useAuth } from '../store/AuthContext'
+import { useAuth } from '../hooks/useAuth'
 
 type Tab = 'My Reports' | 'Saved Alerts' | 'Emergency Contacts' | 'Notifications' | 'Account Settings'
 
@@ -26,10 +26,19 @@ export function ProfilePage() {
     defaultValues: { name: '', phone: '', relationship: '' },
   })
 
+  const derivedProfile = useMemo(() => {
+    const metadata = (user?.user_metadata || {}) as Record<string, string | undefined>
+    const displayName = metadata.full_name || metadata.name || user?.email || 'DHIP User'
+    const phone = metadata.phone || ''
+    const state = metadata.state || ''
+    const joinedAt = user?.created_at || '2024-01-01T00:00:00Z'
+    return { displayName, phone, state, joinedAt }
+  }, [user])
+
   const joinedDate = useMemo(() => {
-    const source = user?.joinedAt || '2024-01-01T00:00:00Z'
+    const source = derivedProfile.joinedAt || '2024-01-01T00:00:00Z'
     return new Date(source).toLocaleDateString()
-  }, [user?.joinedAt])
+  }, [derivedProfile.joinedAt])
 
   const rank = useMemo(() => (contacts.length > 3 ? 'Guardian' : 'Contributor'), [contacts.length])
 
@@ -39,10 +48,10 @@ export function ProfilePage() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-600 text-2xl font-bold text-white">
-              {(user?.displayName || 'DU').slice(0, 2).toUpperCase()}
+              {derivedProfile.displayName.slice(0, 2).toUpperCase()}
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">{user?.displayName || 'DHIP User'}</h1>
+              <h1 className="text-3xl font-bold text-white">{derivedProfile.displayName}</h1>
               <p className="text-sm text-gray-400">{user?.email}</p>
               <p className="text-xs text-gray-500">Joined {joinedDate}</p>
             </div>
@@ -136,9 +145,9 @@ export function ProfilePage() {
 
           {tab === 'Account Settings' ? (
             <div className="space-y-4">
-              <input className="input-base" defaultValue={user?.displayName} placeholder="Name" />
-              <input className="input-base" defaultValue={user?.phone} placeholder="Phone" />
-              <input className="input-base" defaultValue={user?.state} placeholder="State/Region" />
+              <input className="input-base" defaultValue={derivedProfile.displayName} placeholder="Name" />
+              <input className="input-base" defaultValue={derivedProfile.phone} placeholder="Phone" />
+              <input className="input-base" defaultValue={derivedProfile.state} placeholder="State/Region" />
               <button className="rounded-xl bg-blue-600 px-5 py-3 text-white">Save Settings</button>
             </div>
           ) : null}

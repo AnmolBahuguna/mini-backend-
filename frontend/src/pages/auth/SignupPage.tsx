@@ -12,13 +12,14 @@ import { FloatingLabel } from '../../components/ui/FloatingLabel'
 import { GradientButton } from '../../components/ui/GradientButton'
 import { PasswordStrengthBar } from '../../components/ui/PasswordStrengthBar'
 import { indiaRegions } from '../../lib/indiaRegions'
-import { useAuth } from '../../store/AuthContext'
+import { useAuth } from '../../hooks/useAuth'
 
 const schema = z.object({
   fullName: z.string().min(2).max(60),
   email: z.string().email(),
   phone: z.string().regex(/^[+]?[0-9]{10,13}$/).optional().or(z.literal('')),
   state: z.string().min(1),
+  district: z.string().min(2).max(80),
   password: z.string().min(8).regex(/[A-Z]/, 'Must contain an uppercase letter').regex(/[0-9]/, 'Must contain a number'),
   confirmPassword: z.string(),
   terms: z.boolean().refine((value) => value, 'You must accept terms'),
@@ -32,7 +33,7 @@ type SignupInput = z.infer<typeof schema>
 type Step = 1 | 2 | 3
 
 export function SignupPage() {
-  const { user, signUp } = useAuth()
+  const { user, signup, isLoading, error } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const returnUrl = new URLSearchParams(location.search).get('returnUrl')
@@ -53,7 +54,7 @@ export function SignupPage() {
 
   const stepValidity = useMemo(() => ({
     1: ['fullName', 'email'] as const,
-    2: ['phone', 'state'] as const,
+    2: ['phone', 'state', 'district'] as const,
     3: ['password', 'confirmPassword', 'terms'] as const,
   }), [])
 
@@ -66,10 +67,14 @@ export function SignupPage() {
 
   const submit = async (values: SignupInput) => {
     try {
-      await signUp(values)
+      await signup(values.email, values.password, values.fullName, {
+        phone: values.phone,
+        district: values.district,
+        state: values.state,
+      })
       confetti({ particleCount: 120, spread: 80, colors: ['#0066FF', '#8B5CF6', '#00F5FF'] })
       toast.success('Account created! Check email to verify.')
-      navigate(returnUrl || '/')
+      navigate('/auth/login', { replace: true, state: { from: returnUrl || '/' } })
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Signup failed')
     }
@@ -143,6 +148,7 @@ export function SignupPage() {
                   </div>
                   {errors.state ? <p className="text-xs text-red-400">State is required</p> : null}
                 </div>
+                <FloatingLabel id="signup-district" label="District" placeholder="District" icon={<MapPin className="h-4 w-4" />} error={errors.district?.message} {...register('district')} />
                 <p className="text-xs text-white/50">This helps us send regional threat alerts.</p>
                 <div className="grid grid-cols-2 gap-2">
                   <button type="button" onClick={() => setStep(1)} className="rounded-xl border border-white/15 py-3 text-sm text-white/80">← Back</button>
@@ -186,7 +192,8 @@ export function SignupPage() {
 
                 <div className="grid grid-cols-2 gap-2">
                   <button type="button" onClick={() => setStep(2)} className="rounded-xl border border-white/15 py-3 text-sm text-white/80">← Back</button>
-                  <GradientButton className="w-full" type="submit" loading={isSubmitting} disabled={isSubmitting}>{isSubmitting ? 'Creating account...' : 'Create Account'}</GradientButton>
+                  {error ? <p className="text-sm text-red-400 text-center">{error}</p> : null}
+                  <GradientButton className="w-full" type="submit" loading={isSubmitting || isLoading} disabled={isSubmitting || isLoading}>{isSubmitting || isLoading ? 'Creating account...' : 'Create Account'}</GradientButton>
                 </div>
               </>
             ) : null}

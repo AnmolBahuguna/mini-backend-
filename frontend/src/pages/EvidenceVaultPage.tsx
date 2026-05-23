@@ -1,44 +1,18 @@
-import toast from 'react-hot-toast'
-import { useState } from 'react'
+
 import { UploadZone } from '../components/ui/UploadZone'
-import { api } from '../lib/api'
-
-type EvidenceFile = {
-  id: string
-  name: string
-  uploadedAt: string
-  size: string
-}
-
-const initialFiles: EvidenceFile[] = [
-  { id: '1', name: 'Signal_Intercept_99.enc', uploadedAt: '2026-03-20', size: '42.5 MB' },
-  { id: '2', name: 'Auth_Log_Fragment.txt', uploadedAt: '2026-03-19', size: '1.2 MB' },
-]
+import { useEvidenceVaultAPI } from '../hooks/useEvidenceVaultAPI'
 
 export function EvidenceVaultPage() {
-  const [files, setFiles] = useState<EvidenceFile[]>(initialFiles)
+  const { evidence: files, uploadFile } = useEvidenceVaultAPI()
 
   const handleFilesSelected = async (selectedFiles: File[]) => {
     if (selectedFiles.length === 0) return
-    const mapped = selectedFiles.map((file, index) => ({
-      id: `${Date.now()}-${index}`,
-      name: file.name,
-      uploadedAt: new Date().toISOString().slice(0, 10),
-      size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-    }))
-    setFiles((prev) => [...mapped, ...prev])
-    toast.success(`${mapped.length} file(s) added to vault queue`)
-
     try {
-      const formData = new FormData()
-      selectedFiles.forEach((file) => formData.append('files', file))
-      await api.post('/api/evidence/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      toast.success('Files uploaded to vault')
+      for (const file of selectedFiles) {
+        await uploadFile(file)
+      }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Upload failed. Please try again.'
-      toast.error(message)
+      console.error('Upload failed:', error)
     }
   }
 
@@ -84,15 +58,15 @@ export function EvidenceVaultPage() {
           <div className="glass rounded-2xl border border-white/10 p-5">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-bold text-white">File List</h2>
-              <span className="text-xs text-gray-400">{files.length} items</span>
+              <span className="text-gray-400 text-xs">{files.length} files</span>
             </div>
             <div className="space-y-3">
               {files.map((file) => (
                 <article key={file.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
-                  <p className="font-mono text-sm text-blue-300">{file.name}</p>
+                  <p className="font-mono text-sm text-blue-300">{file.filename}</p>
                   <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
-                    <span>{file.uploadedAt}</span>
-                    <span>{file.size}</span>
+                    <span>{file.created_at ? new Date(file.created_at).toLocaleString() : ''}</span>
+                    <span>{file.file_size ? `${(file.file_size/1024).toFixed(1)} KB` : ''}</span>
                   </div>
                 </article>
               ))}

@@ -10,5 +10,8 @@ export function useDashboardStats() {
       return data
     },
     refetchInterval: 15_000,
+    staleTime: 10_000,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   })
 }

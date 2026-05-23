@@ -1,0 +1,142 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║           🎯 HOW TO FIX "CANNOT CONNECT" ERROR 🎯                   ║
+║                                                                      ║
+║     Error: Cannot connect to API at http://localhost:8000           ║
+║     Reason: Backend server is NOT running                           ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+
+═══════════════════════════════════════════════════════════════════════
+ SOLUTION IN 2 STEPS
+═══════════════════════════════════════════════════════════════════════
+
+STEP 1: START BACKEND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Go to project folder:
+     📁 C:\Users\sheet\OneDrive\Desktop\Anmol\Mini project
+
+  2. Find file: backend-auto-run.bat ⭐
+
+  3. Double-click it
+
+  4. Wait for terminal to show:
+     ✅ BACKEND SERVER STARTING
+     🔗 API URL: http://localhost:8000/api/
+
+  5. ⚠️  KEEP TERMINAL OPEN ⚠️
+     (Don't close it while using frontend!)
+
+
+STEP 2: TEST IT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Open browser
+  2. Go to: http://localhost:8000/api/
+  3. Should show: {"message": "OK"} ✓
+
+
+═══════════════════════════════════════════════════════════════════════
+ THEN START FRONTEND (NEW TERMINAL)
+═══════════════════════════════════════════════════════════════════════
+
+  1. Open NEW terminal/command prompt
+  2. Run:
+     cd frontend
+     npm run dev
+
+  3. Open browser: http://localhost:5173
+  4. Start scanning! 🛡️
+
+
+═══════════════════════════════════════════════════════════════════════
+ IMPORTANT POINTS
+═══════════════════════════════════════════════════════════════════════
+
+✓ Backend terminal must stay OPEN
+✗ Do NOT close the backend terminal
+✓ Keep it running while using frontend
+✗ If you close it → Error returns
+
+
+═══════════════════════════════════════════════════════════════════════
+ FILE REFERENCE
+═══════════════════════════════════════════════════════════════════════
+
+Main Files:
+  • backend-auto-run.bat ............. START BACKEND (Main file)
+  • check-backend.bat ................ Diagnose issues
+  • START_BACKEND_NOW_IMMEDIATELY.md . This guide
+  • CANNOT_CONNECT_FIX.md ............ Detailed version
+
+Help Guides:
+  • NETWORK_ERROR_GUIDE.md ........... Network problems
+  • BACKEND_STARTUP_GUIDE.md ......... Detailed setup
+  • START_HERE_BACKEND.md ............ Setup tutorial
+
+
+═══════════════════════════════════════════════════════════════════════
+ QUICK COMMANDS REFERENCE
+═══════════════════════════════════════════════════════════════════════
+
+Start Backend:
+  ✓ Double-click: backend-auto-run.bat
+  OR
+  ✓ Command: cd backend && python manage.py runserver
+
+Start Frontend:
+  ✓ cd frontend && npm run dev
+
+Test Backend:
+  ✓ http://localhost:8000/api/
+
+Frontend:
+  ✓ http://localhost:5173
+
+
+═══════════════════════════════════════════════════════════════════════
+ VERIFY SUCCESS
+═══════════════════════════════════════════════════════════════════════
+
+Backend Started? ✓
+  Terminal shows: "Starting development server at..."
+
+Test Endpoint? ✓
+  http://localhost:8000/api/ shows JSON
+
+Frontend Connects? ✓
+  No "Cannot connect" error in browser console
+
+Ready to Scan? ✓
+  Can type URL and click "Analyze Risk"
+
+
+═══════════════════════════════════════════════════════════════════════
+ TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════
+
+Problem: Terminal closes immediately
+Fix: Run check-backend.bat to diagnose
+
+Problem: "Port 8000 already in use"
+Fix: Run check-backend.bat (it will free the port)
+
+Problem: "Python not found"
+Fix: Install Python from python.org
+
+Problem: Still getting "Cannot connect" error
+Fix: 
+  1. Make sure backend terminal is open
+  2. Test: http://localhost:8000/api/
+  3. Run: check-backend.bat
+
+
+═══════════════════════════════════════════════════════════════════════
+ YOU'RE ALL SET! 🎉
+═══════════════════════════════════════════════════════════════════════
+
+👉 ACTION: Double-click backend-auto-run.bat to get started!
+
+Your DHIP threat scanner is ready to use! 🛡️

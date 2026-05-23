@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { api } from "../lib/api";
 import { Link } from "react-router-dom";
+import { fetchNGOs, fetchLawyers, fetchLaws, fetchTactics } from "../api/supabaseData";
 
 /* ─── DATA ──────────────────────────────────────────────────────────────────── */
 const EC = [
@@ -9,29 +10,7 @@ const EC = [
   { name:"NCW",          num:"7827-170-170",  icon:"⚖️", c:"#8b5cf6" },
   { name:"Cyber Crime",  num:"1930",          icon:"💻", c:"#3b82f6" },
 ];
-const NGOS = [
-  { name:"iCall",                  state:"Maharashtra", city:"Mumbai",    spec:"Cyber Harassment", ph:"9152987821",  v:true,  f:true,  d:"Free psychological counseling for cyber abuse victims" },
-  { name:"Cyber Peace Foundation", state:"Delhi",       city:"New Delhi", spec:"Cyber Harassment", ph:"1800111363",  v:true,  f:false, d:"Digital safety and cyber crime awareness" },
-  { name:"Lawyers Collective",     state:"Maharashtra", city:"Mumbai",    spec:"Legal Aid",        ph:"02224941248", v:true,  f:true,  d:"Free legal assistance for women in distress" },
-  { name:"SNEHI",                  state:"Delhi",       city:"New Delhi", spec:"Counseling",       ph:"01165978181", v:true,  f:true,  d:"24/7 emotional support helpline" },
-  { name:"SEWA",                   state:"Gujarat",     city:"Ahmedabad", spec:"Legal Aid",        ph:"07927660385", v:true,  f:false, d:"Women empowerment and legal rights" },
-  { name:"Shakti Shalini",         state:"Delhi",       city:"New Delhi", spec:"Sextortion",       ph:"01124373737", v:true,  f:true,  d:"Support for gender-based violence and sextortion" },
-  { name:"Majlis",                 state:"Maharashtra", city:"Mumbai",    spec:"Legal Aid",        ph:"02223700702", v:true,  f:true,  d:"Legal advocacy for women and children" },
-  { name:"Praja Foundation",       state:"Karnataka",   city:"Bengaluru", spec:"Counseling",       ph:"08025501639", v:false, f:false, d:"Mental health support for digital abuse survivors" },
-];
-const LAWYERS = [
-  { name:"Adv. Priya Sharma", city:"New Delhi", spec:"Cyber Law & IT Act",    r:4.9, pb:true,  exp:"12 yrs", av:"PS", c:"#7c3aed" },
-  { name:"Adv. Meera Iyer",   city:"Mumbai",    spec:"Sextortion & Privacy",  r:4.8, pb:true,  exp:"8 yrs",  av:"MI", c:"#9333ea" },
-  { name:"Adv. Sunita Rao",   city:"Bengaluru", spec:"Digital Harassment",    r:4.7, pb:false, exp:"15 yrs", av:"SR", c:"#6d28d9" },
-  { name:"Adv. Kavita Nair",  city:"Chennai",   spec:"Women's Rights & IPC",  r:4.6, pb:true,  exp:"10 yrs", av:"KN", c:"#7c3aed" },
-];
-const LAWS = [
-  { s:"Sec 66C",      t:"Identity Theft",          d:"Fraudulently using electronic signature or password of another person.", p:"3 yrs + ₹1L fine" },
-  { s:"Sec 66E",      t:"Privacy Violation",        d:"Capturing or publishing private images without consent — voyeurism, non-consensual intimate images.", p:"3 yrs + ₹2L fine" },
-  { s:"Sec 67A",      t:"Sexually Explicit Content",d:"Publishing sexually explicit content electronically without consent, including deepfakes.", p:"5 yrs + ₹10L fine" },
-  { s:"Sec 354D IPC", t:"Cyberstalking",            d:"Following a woman online or monitoring her internet activities despite her clear disinterest.", p:"3 yrs imprisonment" },
-  { s:"Sec 507 IPC",  t:"Anonymous Threats",        d:"Criminal intimidation through anonymous communication — fake accounts, anonymous messages.", p:"2 yrs imprisonment" },
-];
+
 const QR = [
   "I'm being blackmailed with photos",
   "Someone is harassing me online",
@@ -40,12 +19,11 @@ const QR = [
   "How do I file a cyber complaint?",
   "How to collect evidence safely?",
 ];
-const TACTICS = [
-  { c:'"I have your videos — pay or I\'ll send them"',   t:"Sextortion. Paying never stops them — it escalates. Block, screenshot, report 1930.", i:"🎭" },
-  { c:'"You are under digital arrest"',                   t:"NO such thing in India. Always 100% a scam. Hang up, call 100 immediately.", i:"🚔" },
-  { c:'"Pay ₹X to close the case / recover files"',      t:"Never pay. Take screenshots of everything → report at cybercrime.gov.in.", i:"💰" },
-  { c:'"We are from CBI/ED — stay on video call"',       t:"Real law enforcement NEVER demands money via call. Hang up, call 100.", i:"⚠️" },
-];
+
+type Tactic = { i: string; c: string; t: string }
+type NGO = { name: string; state: string; spec: string; city: string; d: string; ph: string; v?: boolean; f?: boolean }
+type Law = { s: string; t: string; p: string; d: string }
+type Lawyer = { name: string; city: string; exp: string; spec: string; r: number; av: string; c: string; pb?: boolean }
 
 /* ─── HOOK: window width ────────────────────────────────────────────────────── */
 function useWidth() {
@@ -85,10 +63,9 @@ function Chatbot({ onClose }: { onClose?: () => void }) {
     setVal(""); setShowQ(false);
     setMsgs(p => [...p, { role:"user", text, t:new Date() }]);
     setBusy(true);
-    hist.current = [...hist.current, { role:"user", content:text }];
+    hist.current = [...hist.current, { role:"user", content:text }].slice(-8);
     try {
-      // TODO: replace with secure server-side proxy for AI responses
-      const { data } = await api.post<{ reply?: string }>("/api/support-chat", {
+      const { data } = await api.post<{ reply?: string }>("/support-chat/", {
         history: hist.current,
         message: text,
       })
@@ -231,12 +208,27 @@ function Chatbot({ onClose }: { onClose?: () => void }) {
   );
 }
 
+import { usePanic } from '../hooks/usePanicAPI'
+
 /* ─── PANIC BUTTON ───────────────────────────────────────────────────────────── */
 function PanicButton() {
-  const [st, setSt] = useState("idle");
-  const [cd, setCd] = useState(3);
-  const [gps, setGps] = useState<{lat: string; lng: string} | null>(null);
-  const timer = useRef<NodeJS.Timeout | null>(null);
+  const { triggerSOS, status: apiStatus, cooldown, canTrigger } = usePanic()
+  const [st, setSt] = useState<string>('idle')
+  const [cd, setCd] = useState(3)
+  const timer = useRef<NodeJS.Timeout | null>(null)
+
+  // Map the new API status to our UI states
+  useEffect(() => {
+    if (apiStatus === 'locating') setSt('locating')
+    if (apiStatus === 'sending') setSt('sending')
+    if (apiStatus === 'sent') {
+      setSt('sent')
+      setTimeout(() => setSt('idle'), 4000)
+    }
+    if (apiStatus === 'failed') {
+       setSt('idle')
+    }
+  }, [apiStatus])
 
   const cfgMap = {
     idle:     { g:"#b91c1c,#dc2626", ring:"#ef4444", icon:"🆘", lbl:"PANIC / SOS", sub:"Hold to send alert",     glow:"rgba(239,68,68,0.55)",     pulse:true  },
@@ -250,30 +242,23 @@ function PanicButton() {
   const cfg = cfgMap[st as keyof typeof cfgMap] ?? cfgMap.idle;
 
   const startPanic = () => {
-    if (st !== "idle") return;
+    if (st !== "idle" || !canTrigger) return;
     setSt("countdown"); let c = 3; setCd(c);
     timer.current = setInterval(() => {
       c--; setCd(c);
-      if (c <= 0) { if (timer.current) clearInterval(timer.current); go(); }
+      if (c <= 0) { 
+        if (timer.current) clearInterval(timer.current); 
+        // Hook natively handles geolocation tracking and API execution
+        triggerSOS().catch(() => {
+           // Fallback if SMS completely blocks out
+           setSt("offline");
+           window.location.href = `sms:100?body=${encodeURIComponent("🆘 EMERGENCY! I need help! Sent via DHIP")}`;
+           setTimeout(() => setSt("idle"), 3000)
+        })
+      }
     }, 1000);
   };
   const cancel = () => { if (st!=="countdown") return; if (timer.current) clearInterval(timer.current); setSt("idle"); setCd(3); };
-  const go = () => {
-    if (!navigator.onLine) {
-      setSt("offline");
-      window.location.href = `sms:100?body=${encodeURIComponent("🆘 EMERGENCY! I need help! Sent via DHIP")}`;
-      return setTimeout(() => setSt("idle"), 3000);
-    }
-    setSt("locating");
-    navigator.geolocation?.getCurrentPosition(
-      p => { setGps({ lat:p.coords.latitude.toFixed(4), lng:p.coords.longitude.toFixed(4) }); finish(); },
-      () => finish(), { timeout:5000 }
-    );
-  };
-  const finish = () => {
-    setSt("sending");
-    setTimeout(() => { setSt("sent"); setTimeout(() => { setSt("idle"); setGps(null); }, 4000); }, 2000);
-  };
 
   return (
     <div className="flex flex-col items-center gap-5 w-full">
@@ -299,16 +284,26 @@ function PanicButton() {
             cursor:"pointer", WebkitTapHighlightColor:"transparent",
           }}
           aria-label="🆘 PANIC">
-          <span style={{ fontSize: st==="countdown" ? 46 : 38, lineHeight:1 }}>{cfg.icon}</span>
-          <span className="text-white font-black text-sm mt-1.5 tracking-widest">{cfg.lbl}</span>
-          <span className="text-white/70 text-[10px] mt-0.5 text-center px-3 leading-tight">{cfg.sub}</span>
+          {cooldown > 0 && st === 'idle' ? (
+             <>
+               <span style={{ fontSize: 38, lineHeight:1 }}>⏳</span>
+               <span className="text-white font-black text-sm mt-1.5 tracking-widest">COOLDOWN</span>
+               <span className="text-white/70 text-[10px] mt-0.5 text-center px-3 leading-tight">Wait {cooldown}s</span>
+             </>
+          ) : (
+             <>
+               <span style={{ fontSize: st==="countdown" ? 46 : 38, lineHeight:1 }}>{cfg.icon}</span>
+               <span className="text-white font-black text-sm mt-1.5 tracking-widest">{cfg.lbl}</span>
+               <span className="text-white/70 text-[10px] mt-0.5 text-center px-3 leading-tight">{cfg.sub}</span>
+             </>
+          )}
         </button>
       </div>
 
-      {gps && (
+      {apiStatus === 'sent' && (
         <div className="text-[11px] px-4 py-2 rounded-xl font-mono"
              style={{ background:"rgba(34,197,94,0.1)", border:"1px solid rgba(34,197,94,0.3)", color:"#86efac" }}>
-          📍 {gps.lat}, {gps.lng} — Location sent
+          📍 Location attached via hook — Alert sent
         </div>
       )}
 
@@ -334,7 +329,7 @@ function PanicButton() {
 }
 
 /* ─── LAYER 1 ────────────────────────────────────────────────────────────────── */
-function Layer1({ onChat }: { onChat: () => void }) {
+function Layer1({ onChat, tactics }: { onChat: () => void; tactics: Tactic[] }) {
   const [rc, setRc] = useState(false);
   const tools = [
     { icon:"🤖", t:"AI Safety Companion",   d:"24/7 judgment-free AI chat. Anonymous, no account.", btn:"Open Chat", fn:onChat,          a:"#7c3aed" },
@@ -389,7 +384,7 @@ function Layer1({ onChat }: { onChat: () => void }) {
               className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-300 hover:bg-white/10 transition-all"
               style={{ background:"none", border:"none", cursor:"pointer", fontSize:16 }}>✕</button>
           </div>
-          {TACTICS.map((t,i) => (
+          {tactics.map((t, i) => (
             <div key={i} className="rounded-xl p-3"
                  style={{ background:"rgba(22,14,38,0.7)", border:"1px solid rgba(75,60,100,0.4)" }}>
               <p className="text-xs font-mono mb-2 m-0 leading-relaxed" style={{ color:"#fca5a5" }}>
@@ -408,12 +403,12 @@ function Layer1({ onChat }: { onChat: () => void }) {
 }
 
 /* ─── LAYER 2 ────────────────────────────────────────────────────────────────── */
-function Layer2() {
+function Layer2({ ngos }: { ngos: NGO[] }) {
   const [sf, setSf] = useState("All");
   const [spf, setSpf] = useState("All");
-  const states = ["All", ...new Set(NGOS.map(n=>n.state))];
-  const specs  = ["All", ...new Set(NGOS.map(n=>n.spec))];
-  const list   = NGOS.filter(n=>(sf==="All"||n.state===sf)&&(spf==="All"||n.spec===spf));
+  const states = ["All", ...new Set(ngos.map((n) => n.state))];
+  const specs  = ["All", ...new Set(ngos.map((n) => n.spec))];
+  const list   = ngos.filter((n) => (sf==="All"||n.state===sf) && (spf==="All"||n.spec===spf));
 
   const HLS = [
     { l:"NCW Women Helpline",  n:"7827-170-170", i:"⚖️", c:"#7c3aed" },
@@ -458,10 +453,10 @@ function Layer2() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
           <p className="text-gray-500 text-[10px] uppercase tracking-widest font-semibold m-0">NGO Directory</p>
           <div className="flex gap-2">
-            {[{ v:sf, sv:setSf, opts:states }, { v:spf, sv:setSpf, opts:specs }].map((s,i) => (
+            {[{ v: sf, sv: setSf, opts: states }, { v: spf, sv: setSpf, opts: specs }].map((s, i) => (
               <div key={i} className="relative flex-1 sm:flex-none">
                 <select value={s.v} onChange={e=>s.sv(e.target.value)} style={ss}>
-                  {s.opts.map(o=><option key={o} value={o} style={{ background:"#1a0533" }}>{o}</option>)}
+                  {s.opts.map((o: string) => <option key={o} value={o} style={{ background:"#1a0533" }}>{o}</option>)}
                 </select>
                 <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-[9px]">▼</span>
               </div>
@@ -494,7 +489,7 @@ function Layer2() {
 }
 
 /* ─── LAYER 3 ────────────────────────────────────────────────────────────────── */
-function Layer3() {
+function Layer3({ laws, lawyers }: { laws: Law[]; lawyers: Lawyer[] }) {
   const [ol, setOl] = useState<number | null>(null);
   const steps = [
     { l:"Evidence Collected",       done:true,   i:"📁" },
@@ -562,7 +557,7 @@ function Layer3() {
       <div>
         <p className="text-gray-500 text-[10px] uppercase tracking-widest font-semibold mb-3 m-0">Relevant Laws — Know Your Rights</p>
         <div className="space-y-2">
-          {LAWS.map((s,i) => (
+          {laws.map((s, i) => (
             <div key={i} className="rounded-xl overflow-hidden"
                  style={{ background:"rgba(10,5,20,0.85)", border:"1px solid rgba(75,85,99,0.35)" }}>
               <button onClick={()=>setOl(ol===i?null:i)}
@@ -599,7 +594,7 @@ function Layer3() {
       <div>
         <p className="text-gray-500 text-[10px] uppercase tracking-widest font-semibold mb-3 m-0">Verified Lawyer Network</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {LAWYERS.map(l => (
+          {lawyers.map((l) => (
             <div key={l.name} className="rounded-2xl p-4 flex flex-col gap-3 transition-all"
                  style={{ background:"rgba(10,5,20,0.85)", border:"1px solid rgba(75,85,99,0.35)" }}
                  onMouseEnter={e=>e.currentTarget.style.borderColor="rgba(139,92,246,0.5)"}
@@ -670,9 +665,21 @@ function Layer3() {
 
 /* ─── MAIN PAGE ──────────────────────────────────────────────────────────────── */
 export function WomenSafetyPage() {
+  const [ngos, setNgos] = useState<NGO[]>([]);
+  const [lawyers, setLawyers] = useState<Lawyer[]>([]);
+  const [laws, setLaws] = useState<Law[]>([]);
+  const [tactics, setTactics] = useState<Tactic[]>([]);
+
   const [tab, setTab]           = useState(1);
   const [chatOpen, setChatOpen] = useState(false);
   const width                   = useWidth();
+
+  useEffect(() => {
+    fetchNGOs().then((data) => setNgos((data as NGO[]) ?? [])).catch(() => setNgos([]));
+    fetchLawyers().then((data) => setLawyers((data as Lawyer[]) ?? [])).catch(() => setLawyers([]));
+    fetchLaws().then((data) => setLaws((data as Law[]) ?? [])).catch(() => setLaws([]));
+    fetchTactics().then((data) => setTactics((data as Tactic[]) ?? [])).catch(() => setTactics([]));
+  }, []);
   const isDesktop               = width >= 1024;
 
   const layers = [
@@ -786,9 +793,9 @@ export function WomenSafetyPage() {
                   </button>
                 )}
               </div>
-              {tab===1 && <Layer1 onChat={()=>{ if(!isDesktop) setChatOpen(true); }} />}
-              {tab===2 && <Layer2 />}
-              {tab===3 && <Layer3 />}
+              {tab===1 && <Layer1 tactics={tactics} onChat={()=>{ if(!isDesktop) setChatOpen(true); }} />}
+              {tab===2 && <Layer2 ngos={ngos} />}
+              {tab===3 && <Layer3 laws={laws} lawyers={lawyers} />}
             </div>
           </div>
 

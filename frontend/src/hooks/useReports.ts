@@ -9,6 +9,10 @@ export function useReports() {
       const { data } = await api.get<ReportsResponse>('/api/reports/')
       return data.results
     },
+    staleTime: 30_000,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: false,
   })
 }
 
@@ -17,7 +21,13 @@ export function useCreateReport() {
 
   return useMutation({
     mutationFn: async (payload: CreateReportRequest) => {
-      const { data } = await api.post<CreateReportResponse>('/api/reports/', payload)
+      const { data } = await api.post<CreateReportResponse>('/api/reports/submit/', {
+        entity: payload.entity,
+        entity_type: payload.entity_type ?? 'message',
+        scam_type: payload.scamType,
+        description: payload.description,
+        state: payload.state,
+      })
       return data
     },
     onSuccess: () => {

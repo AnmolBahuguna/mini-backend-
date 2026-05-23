@@ -7,35 +7,35 @@ const features = [
     tagline: 'Multi-source intelligence engine',
     description: 'Parallel API checks across 10 threat databases simultaneously. DRS score computed in under 2 seconds.',
     bullets: ['Parallel API checks · 10 sources', 'DRS score in <2s', 'Actionable recommendations', 'One-click reporting'],
-    neon: '#39FF14', demo: 'scanner',
+    neon: '#22D3EE', demo: 'scanner',
   },
   {
     id: 'alerts', icon: '◈', code: 'SYS_02', title: 'Live Alerts',
     tagline: 'Regional threat intelligence feed',
     description: 'State-level threat pushes with severity ranking. Real-time warnings before the attack vector reaches your zone.',
     bullets: ['State-level geographic updates', 'Severity prioritization engine', 'Rapid warning feed', 'Emergency contact actions'],
-    neon: '#FF2D55', demo: 'alerts',
+    neon: '#38BDF8', demo: 'alerts',
   },
   {
     id: 'women', icon: '◉', code: 'SYS_03', title: 'Women Safety Hub',
     tagline: 'Trauma-informed protection layer',
     description: 'Panic alert flows with controlled escalation. Anonymous mode strips all metadata. Direct helpline integration.',
     bullets: ['Anonymous mode + metadata wipe', 'Helpline integration 112 / 1091', 'Safe reporting pathways', 'Evidence support chain'],
-    neon: '#BF5FFF', demo: 'women',
+    neon: '#60A5FA', demo: 'women',
   },
   {
     id: 'vault', icon: '▣', code: 'SYS_04', title: 'Evidence Vault',
     tagline: 'AES-256 + blockchain anchoring',
     description: 'Client-side encryption with optional Polygon blockchain timestamping for court-admissible evidence preservation.',
     bullets: ['AES-256 client-side encryption', 'Tamper-resistant audit trail', 'SHA-256 file hash proofs', 'Secure access controls'],
-    neon: '#00F5FF', demo: 'vault',
+    neon: '#0EA5E9', demo: 'vault',
   },
   {
     id: 'community', icon: '◎', code: 'SYS_05', title: 'Community Intel',
     tagline: 'Crowd-sourced collective defence',
     description: 'Individual reports cluster into verified threat patterns. Mass warnings dispatched before attackers adapt.',
     bullets: ['Crowd-sourced threat signals', 'Verification workflow engine', 'AI pattern clustering', 'Mass warning distribution'],
-    neon: '#FFB800', demo: 'community',
+    neon: '#06B6D4', demo: 'community',
   },
 ]
 
@@ -234,17 +234,9 @@ function WomenDemo({ neon }: { neon: string }) {
   )
 }
 
+import { useEvidenceVaultAPI } from '../hooks/useEvidenceVaultAPI'
 function VaultDemo({ neon }: { neon: string }) {
-  const [files, setFiles] = useState([
-    { name: 'evidence_001.png', hash: 'a3f9b2...c12e', sealed: true },
-    { name: 'chat_log_2024.txt', hash: '7b2dc1...89af', sealed: false },
-    { name: 'call_record.mp3', hash: 'd9f3a8...11bc', sealed: false },
-  ])
-  const [sealing, setSealing] = useState<number | null>(null)
-  const seal = (i: number) => {
-    setSealing(i)
-    setTimeout(() => { setFiles((f) => f.map((x, idx) => (idx === i ? { ...x, sealed: true } : x))); setSealing(null) }, 1600)
-  }
+  const { evidence: files, loading, error } = useEvidenceVaultAPI()
   return (
     <div className="space-y-3 font-mono">
       <div className="border px-3 py-2 flex items-center justify-between text-xs"
@@ -252,21 +244,16 @@ function VaultDemo({ neon }: { neon: string }) {
         <span style={{ color: neon }}>AES-256 · POLYGON READY</span>
         <span className="animate-pulse" style={{ color: `${neon}77` }}>◈ ACTIVE</span>
       </div>
-      {files.map((f, i) => (
-        <div key={f.name} className="border px-3 py-2.5 flex items-center justify-between"
-          style={{ borderColor: `${neon}22`, background: f.sealed ? `${neon}06` : 'transparent' }}>
+      {loading && <div className="text-xs text-gray-400">Loading...</div>}
+      {error && <div className="text-xs text-red-400">{error}</div>}
+      {files.map((f) => (
+        <div key={f.id} className="border px-3 py-2.5 flex items-center justify-between"
+          style={{ borderColor: `${neon}22`, background: 'transparent' }}>
           <div>
-            <div className="text-xs text-white">{f.name}</div>
-            <div className="text-xs opacity-25 mt-0.5">{f.hash}</div>
+            <div className="text-xs text-white">{f.original_name || f.filename}</div>
+            <div className="text-xs opacity-25 mt-0.5">{f.file_type}</div>
           </div>
-          {f.sealed
-            ? <span className="text-xs px-2 py-1 border font-black" style={{ color: neon, borderColor: `${neon}44` }}>⛓ SEALED</span>
-            : <button onClick={() => seal(i)} disabled={sealing !== null}
-                className="text-xs px-3 py-1 font-black transition-all disabled:opacity-30"
-                style={{ background: neon, color: '#000' }}>
-                {sealing === i ? '...' : 'SEAL'}
-              </button>
-          }
+          <span className="text-xs px-2 py-1 border font-black" style={{ color: neon, borderColor: `${neon}44` }}>⛓ SEALED</span>
         </div>
       ))}
     </div>
@@ -274,16 +261,23 @@ function VaultDemo({ neon }: { neon: string }) {
 }
 
 function CommunityDemo({ neon }: { neon: string }) {
-  const [count, setCount] = useState(1847)
-  const reports = [
-    { text: 'Fake KYC call +91-98XXXXXXXX', votes: 89, verified: true },
-    { text: 'Phishing SMS — HDFC reward link', votes: 142, verified: true },
-    { text: 'Vishing attempt — loan offer', votes: 31, verified: false },
-  ]
+  // TODO: Replace with real data from API
+  const [reports, setReports] = useState<Array<{ text: string; verified?: boolean; votes?: number }>>([])
   useEffect(() => {
-    const iv = setInterval(() => setCount((c) => c + Math.floor(Math.random() * 3)), 1800)
-    return () => clearInterval(iv)
+    // Fetch real reports from backend
+      fetch('/api/reports/')
+      .then((res) => res.json())
+        .then((data) => {
+          const results = Array.isArray(data?.results) ? data.results : []
+          setReports(results.map((item: { title?: string; description?: string; verified?: boolean; upvotes?: number }) => ({
+            text: item.title || item.description || 'Community report',
+            verified: Boolean(item.verified),
+            votes: Number(item.upvotes || 0),
+          })))
+        })
+        .catch(() => setReports([]))
   }, [])
+  const count = reports.length
   return (
     <div className="space-y-3 font-mono">
       <div className="border px-3 py-3 flex justify-between items-center"

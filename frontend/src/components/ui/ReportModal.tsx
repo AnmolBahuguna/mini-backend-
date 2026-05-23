@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useCreateReport } from '../../hooks/useReports'
 import { Modal } from './Modal'
+import type { CreateReportRequest } from '../../types/api'
 
 export type ReportPayload = {
   entity: string
@@ -30,6 +31,16 @@ type ReportFormProps = {
   onClose: () => void
 }
 
+function inferEntityType(value: string): NonNullable<CreateReportRequest['entity_type']> {
+  const trimmed = value.trim().toLowerCase()
+  if (!trimmed) return 'message'
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return 'url'
+  if (/^\+?\d{7,15}$/.test(trimmed)) return 'phone'
+  if (trimmed.includes('@')) return 'email'
+  if (/^\w+[.-]?\w*\.[a-z]{2,}$/i.test(trimmed)) return 'domain'
+  return 'message'
+}
+
 function ReportForm({ presetEntity, presetType, onSubmit, ctaLabel, onClose }: ReportFormProps) {
   const [entity, setEntity] = useState(presetEntity)
   const [scamType, setScamType] = useState(presetType)
@@ -49,7 +60,12 @@ function ReportForm({ presetEntity, presetType, onSubmit, ctaLabel, onClose }: R
       if (onSubmit) {
         await onSubmit({ entity, scamType, description, evidenceOptIn })
       } else {
-        await createReport.mutateAsync({ entity, scamType, description })
+        await createReport.mutateAsync({
+          entity,
+          entity_type: inferEntityType(entity),
+          scamType,
+          description,
+        })
       }
       toast.success('Report captured')
       onClose()

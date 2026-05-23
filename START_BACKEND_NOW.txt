@@ -1,0 +1,105 @@
+# 🚀 BACKEND SERVER - RUN NOW
+
+## ✅ QUICKEST WAY - ONE FILE
+
+### **Windows:**
+1. Go to project root folder
+2. Find file: **`run_backend.bat`**
+3. **Double-click it**
+4. Done! ✅
+
+### **macOS/Linux:**
+```bash
+bash start-backend.sh
+```
+
+---
+
+## 🎯 WHAT HAPPENS
+
+**When you run it:**
+1. Checks for Python ✓
+2. Creates virtual environment (first time only) ✓
+3. Installs dependencies ✓
+4. Starts Django server ✓
+
+**Terminal will show:**
+```
+╔═══════════════════════════════════════════════════════╗
+║     Django Server Starting on http://localhost:8000   ║
+╚═══════════════════════════════════════════════════════╝
+
+Starting development server at http://0.0.0.0:8000/
+```
+
+✅ **Backend is running!**
+
+---
+
+## 🔍 VERIFY
+
+Open browser: **http://localhost:8000/api/**
+
+Should show: `{"message": "OK"}` or similar JSON response
+
+---
+
+## ⏭️ NEXT STEPS
+
+### Start Frontend (new terminal):
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Then:
+- Open: **http://localhost:5173**
+- Try scanning: `pay-sbi-secure.xyz`
+- Expected: HIGH RISK (8.5)
+
+---
+
+## 📊 COMPLETE 3-SERVICE SETUP
+
+### Terminal 1: Backend
+```bash
+run_backend.bat
+```
+(or bash start-backend.sh on Mac/Linux)
+
+### Terminal 2: Celery (Optional)
+```bash
+cd backend
+celery -A dhip worker -l info
+```
+
+### Terminal 3: Frontend
+```bash
+cd frontend
+npm run dev
+```
+
+Visit: **http://localhost:5173**
+
+---
+
+## 🛑 TO STOP
+
+Press: **CTRL + C** in the backend terminal
+
+---
+
+## ❌ IF IT DOESN'T WORK
+
+1. Check: `RUN_BACKEND_NOW.md`
+2. Or: `NETWORK_ERROR_GUIDE.md`
+3. Or: `BACKEND_STARTUP_GUIDE.md`
+
+---
+
+## 🎉 YOU'RE READY!
+
+**Your DHIP threat scanner is about to be fully operational! 🛡️**
+
+→ Run the file above and start scanning threats!

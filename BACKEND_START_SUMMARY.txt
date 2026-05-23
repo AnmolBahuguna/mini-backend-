@@ -1,0 +1,124 @@
+╔═════════════════════════════════════════════════════════╗
+║        HOW TO START BACKEND SERVER - COMPLETE           ║
+╚═════════════════════════════════════════════════════════╝
+
+🎯 OPTION 1: WINDOWS - CLICK & RUN (Easiest)
+──────────────────────────────────────────────
+1. Find file: start-backend.bat
+   (in project root folder)
+2. Double-click it
+3. Done! ✅
+
+Wait 5-10 seconds for startup message.
+
+
+🎯 OPTION 2: macOS/LINUX - RUN COMMAND
+──────────────────────────────────────────────
+Open terminal and paste:
+
+    bash start-backend.sh
+
+Done! ✅
+
+
+🎯 OPTION 3: MANUAL COMMANDS - ALL PLATFORMS
+──────────────────────────────────────────────
+
+Windows:
+    cd backend
+    python -m venv .venv
+    .venv\Scripts\activate
+    pip install -r requirements.txt
+    python manage.py runserver 0.0.0.0:8000
+
+macOS/Linux:
+    cd backend
+    python -m venv .venv
+    source .venv/bin/activate
+    pip install -r requirements.txt
+    python manage.py runserver 0.0.0.0:8000
+
+
+✅ SUCCESS - You'll See This:
+──────────────────────────────────────────────
+    Starting development server at http://0.0.0.0:8000/
+
+
+🔍 VERIFY IT WORKS:
+──────────────────────────────────────────────
+1. Open browser
+2. Visit: http://localhost:8000/api/
+3. Should show JSON response (not error)
+
+
+⏭️  NEXT STEP - START FRONTEND:
+──────────────────────────────────────────────
+1. Open NEW terminal window
+2. Run:
+       cd frontend
+       npm install
+       npm run dev
+3. Open: http://localhost:5173
+4. Try scanning a threat!
+
+
+🧪 TEST IT:
+──────────────────────────────────────────────
+Scan URL: pay-sbi-secure.xyz
+Expected: HIGH RISK (8.5)
+Time: 2-5 seconds
+
+
+📚 DETAILED GUIDES:
+──────────────────────────────────────────────
+• START_HERE_BACKEND.md       - Quick reference
+• BACKEND_STARTUP_GUIDE.md    - Detailed steps
+• QUICK_BACKEND_START.md      - Command reference
+• NETWORK_ERROR_GUIDE.md      - Troubleshooting
+• BACKEND_RESOURCES.md        - All resources
+
+
+❌ IF SOMETHING GOES WRONG:
+──────────────────────────────────────────────
+Problem: "python not found"
+→ Use: python3 instead of python
+
+Problem: "Address already in use"
+→ Use: python manage.py runserver 0.0.0.0:9000
+
+Problem: "Network error" in frontend
+→ Check if backend is running
+→ Try: curl http://localhost:8000/api/
+
+Problem: Still stuck?
+→ See: NETWORK_ERROR_GUIDE.md
+
+
+💡 KEY POINTS:
+──────────────────────────────────────────────
+✓ Keep terminal open while using backend
+✓ Don't close terminal or backend stops
+✓ Use 3 separate terminals for full setup
+✓ First run takes longer (installs dependencies)
+✓ Subsequent runs are instant
+
+
+📊 3-TERMINAL COMPLETE SETUP:
+──────────────────────────────────────────────
+Terminal 1 (Backend):
+    cd backend && .venv\Scripts\activate && python manage.py runserver
+
+Terminal 2 (Celery - Optional):
+    cd backend && celery -A dhip worker -l info
+
+Terminal 3 (Frontend):
+    cd frontend && npm run dev
+
+Then open: http://localhost:5173
+
+
+🚀 THAT'S IT!
+
+Your DHIP threat scanner is ready to scan threats! 🛡️
+
+Choose your preferred option above and start!

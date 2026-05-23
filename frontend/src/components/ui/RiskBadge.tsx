@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 
-export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | 'VERIFIED'
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | 'VERIFIED' | 'UNKNOWN'
 
 const colorByLevel: Record<RiskLevel, string> = {
   LOW: 'bg-gray-600 text-white',
@@ -8,6 +8,7 @@ const colorByLevel: Record<RiskLevel, string> = {
   HIGH: 'bg-red-600 text-white',
   VERIFIED: 'bg-emerald-600 text-white',
   CRITICAL: 'bg-red-700 text-white',
+  UNKNOWN: 'bg-slate-600 text-white',
 }
 
 interface RiskBadgeProps {

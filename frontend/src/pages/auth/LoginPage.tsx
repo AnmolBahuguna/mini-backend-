@@ -9,7 +9,7 @@ import { z } from 'zod'
 import { FloatingShield } from '../../components/3d/FloatingShield'
 import { FloatingLabel } from '../../components/ui/FloatingLabel'
 import { GradientButton } from '../../components/ui/GradientButton'
-import { useAuth } from '../../store/AuthContext'
+import { useAuth } from '../../hooks/useAuth'
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -21,7 +21,7 @@ type LoginInput = z.infer<typeof schema>
 
 export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
-  const { user, signIn } = useAuth()
+  const { user, login, isLoading, error } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const returnUrl = new URLSearchParams(location.search).get('returnUrl')
@@ -37,8 +37,11 @@ export function LoginPage() {
 
   const submit = async (values: LoginInput) => {
     try {
-      await signIn(values.email, values.password)
-      const destination = returnUrl || (location.state as { from?: string })?.from || '/'
+      await login(values.email, values.password)
+      const destination =
+        returnUrl ||
+        (location.state as { from?: string })?.from ||
+        '/dashboard'
       navigate(destination)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Invalid credentials')
@@ -104,8 +107,10 @@ export function LoginPage() {
               <Link to="/auth/forgot-password" className="text-blue-400 hover:text-blue-300">Forgot password?</Link>
             </div>
 
-            <GradientButton className="w-full" type="submit" loading={isSubmitting}>
-              {isSubmitting ? 'Signing in...' : 'Sign In'}
+            {error ? <p className="text-sm text-red-400 text-center">{error}</p> : null}
+
+            <GradientButton className="w-full" type="submit" loading={isSubmitting || isLoading}>
+              {isSubmitting || isLoading ? 'Signing in...' : 'Sign In'}
             </GradientButton>
 
             <div className="text-center text-sm text-white/60">Don&apos;t have an account? <Link to="/auth/signup" className="text-blue-400">Create free account</Link></div>

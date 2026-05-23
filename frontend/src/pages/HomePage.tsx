@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom'
 import './HomeLanding.css'
 import { StatsCounter } from '../components/ui/StatsCounter'
 import { useDashboardStats } from '../hooks/useDashboardStats'
+import { CyberNews } from '../components/CyberNews'
+import { useCrimeStore } from '../store/crimeStore'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
 const tickerItems = [
   { label: '+91-98765-43210', detail: 'Digital Arrest Scam', risk: 'HIGH', region: 'Uttarakhand', level: 'high' },
@@ -217,12 +220,63 @@ export function HomePage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const { data: liveStats } = useDashboardStats()
   const [activeApi, setActiveApi] = useState(apis[0])
+  
+  // Crime data store
+  const { crimeStats, liveAlerts, totalIndia, fetchAll, loading: crimeLoading } = useCrimeStore()
+  
+  // Fetch all crime data on mount
+  useEffect(() => {
+    console.log('[HomePage] Fetching crime data...')
+    console.log('[HomePage] Current state - crimeStats:', crimeStats?.length, 'liveAlerts:', liveAlerts?.length, 'totalIndia:', totalIndia)
+    fetchAll()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  
   const impactMetrics = useMemo(() => ([
     { label: 'Threats Detected', value: liveStats?.threatsDetected ?? 1265, suffix: '' },
     { label: 'Active Alerts', value: liveStats?.activeAlerts ?? 412, suffix: '' },
     { label: 'Protected Users', value: liveStats?.protectedUsers ?? 150_000, suffix: '+' },
     { label: 'Detection Accuracy (live)', value: liveStats?.detectionAccuracy ?? 98.2, suffix: '%' },
   ]), [liveStats])
+  
+  // Crime data metrics
+  const crimeMetrics = useMemo(() => ([
+    { 
+      label: 'India Fraud Cases', 
+      value: totalIndia, 
+      suffix: '', 
+      icon: '🇮🇳',
+      subtext: 'Reported on NCRP',
+      tone: 'red'
+    },
+    { 
+      label: 'Active CERT Alerts', 
+      value: liveAlerts.length, 
+      suffix: '', 
+      icon: '🚨',
+      subtext: 'From CERT-In today',
+      tone: 'orange'
+    },
+    { 
+      label: 'Critical Threats', 
+      value: liveAlerts.filter((a: { severity: string }) => a.severity === 'CRITICAL').length, 
+      suffix: '', 
+      icon: '⚠️',
+      subtext: 'Needs immediate attention',
+      tone: 'purple'
+    },
+  ]), [totalIndia, liveAlerts])
+  
+  // Top 5 states by fraud cases for bar chart
+  const top5States = useMemo(() => {
+    return [...crimeStats]
+      .sort((a, b) => b.fraud_cases - a.fraud_cases)
+      .slice(0, 5)
+      .map(s => ({
+        state: s.state.length > 12 ? s.state.slice(0, 10) + '...' : s.state,
+        cases: s.fraud_cases,
+        fullName: s.state
+      }))
+  }, [crimeStats])
 
   useEffect(() => {
     let phraseIndex = 0
@@ -477,6 +531,18 @@ export function HomePage() {
                 <div>
                   <StatsCounter value={stat.value} suffix={stat.suffix} />
                   <span className="stat-lbl">{stat.label}</span>
+                </div>
+              </div>
+            ))}
+            
+            {/* New crime data stats */}
+            {!crimeLoading && crimeMetrics.map((stat, idx) => (
+              <div key={stat.label} className={`stat-cell c-${stat.tone} reveal`} style={{ transitionDelay: `${(stats.length + idx) * 0.08}s` }}>
+                <div className="stat-icon">{stat.icon}</div>
+                <div>
+                  <StatsCounter value={stat.value} suffix={stat.suffix} />
+                  <span className="stat-lbl">{stat.label}</span>
+                  {stat.subtext && <span className="stat-sub" style={{ fontSize: '11px', opacity: 0.6, display: 'block', marginTop: '2px' }}>{stat.subtext}</span>}
                 </div>
               </div>
             ))}
@@ -850,6 +916,122 @@ export function HomePage() {
               </div>
             </div>
             <p className="sec-p" style={{ marginTop: 14, color: 'var(--t3)' }}>Redundancy is built-in: if any provider is slow or down, DHIP automatically falls back to cached intelligence and remaining engines.</p>
+          </div>
+        </section>
+
+        <section className="section" id="cyber-news">
+          <div className="container">
+            <CyberNews />
+          </div>
+        </section>
+
+        {/* Crime Data Intelligence Section */}
+        <section className="section" style={{ background: 'linear-gradient(180deg, rgba(15,23,42,0.95) 0%, rgba(3,11,21,0.98) 100%)' }}>
+          <div className="container">
+            <div className="sec-header reveal">
+              <div className="sec-header-left">
+                <p className="sec-tag">National Intelligence</p>
+                <h2 className="sec-h2">India Crime & Cyber Threat Data</h2>
+                <p className="sec-p">Real-time integration with data.gov.in NCRP and CERT-In RSS for national-level situational awareness</p>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px', marginTop: '32px' }}>
+              {/* Top 5 States Bar Chart */}
+              <div className="feat-card f-purple reveal" style={{ padding: '24px' }}>
+                <h3 className="feat-title">Top 5 States by Fraud Cases</h3>
+                <p className="feat-desc" style={{ marginBottom: '20px' }}>State-wise fraud distribution from NCRP</p>
+                {crimeLoading ? (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '280px' }}>
+                    <div style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite', color: '#94a3b8', fontSize: '14px' }}>Loading...</div>
+                  </div>
+                ) : top5States.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={top5States}>
+                      <XAxis 
+                        dataKey="state" 
+                        tick={{ fill: '#94a3b8', fontSize: 12 }}
+                        axisLine={{ stroke: '#334155' }}
+                      />
+                      <YAxis 
+                        tick={{ fill: '#94a3b8', fontSize: 12 }}
+                        axisLine={{ stroke: '#334155' }}
+                        tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
+                      />
+                      <Tooltip 
+                        contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
+                        labelStyle={{ color: '#f1f5f9' }}
+                        formatter={(value, _name, props) => [
+                          Number(value ?? 0).toLocaleString('en-IN'),
+                          props?.payload?.fullName ?? 'State'
+                        ]}
+                      />
+                      <Bar dataKey="cases" radius={[8, 8, 0, 0]}>
+                        {top5States.map((_, index) => (
+                          <Cell key={`cell-${index}`} fill={['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981'][index]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px', padding: '32px 0' }}>No data available</div>
+                )}
+                <p style={{ fontSize: '12px', color: '#64748b', marginTop: '12px' }}>Source: data.gov.in NCRP</p>
+              </div>
+
+              {/* Mini CERT-In Alerts Preview */}
+              <div className="feat-card f-red reveal" style={{ padding: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                  <div>
+                    <h3 className="feat-title">🚨 CERT-In Live Alerts</h3>
+                    <p className="feat-desc">National cyber threat advisories</p>
+                  </div>
+                  <Link to="/alerts" style={{ fontSize: '12px', color: '#60a5fa', textDecoration: 'none', transition: 'color 0.2s' }}>
+                    View All →
+                  </Link>
+                </div>
+                {crimeLoading ? (
+                  <div style={{ display: 'grid', gap: '12px' }}>
+                    {[1, 2, 3].map(i => (
+                      <div key={i} style={{ background: 'rgba(30,41,59,0.5)', borderRadius: '8px', height: '64px', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
+                    ))}
+                  </div>
+                ) : liveAlerts.slice(0, 3).length > 0 ? (
+                  <div style={{ display: 'grid', gap: '12px' }}>
+                    {liveAlerts.slice(0, 3).map((alert: { severity: string; date: string; title: string }, idx: number) => (
+                      <div 
+                        key={idx} 
+                        style={{ background: 'rgba(30,41,59,0.5)', border: '1px solid #334155', borderRadius: '8px', padding: '12px', transition: 'border-color 0.2s' }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '4px' }}>
+                          <span style={{ 
+                            fontSize: '10px', 
+                            fontWeight: 'bold', 
+                            padding: '2px 8px', 
+                            borderRadius: '4px',
+                            background: alert.severity === 'CRITICAL' ? 'rgba(220,38,38,0.2)' :
+                                       alert.severity === 'HIGH' ? 'rgba(249,115,22,0.2)' :
+                                       alert.severity === 'MEDIUM' ? 'rgba(251,191,36,0.2)' : 'rgba(16,185,129,0.2)',
+                            color: alert.severity === 'CRITICAL' ? '#f87171' :
+                                   alert.severity === 'HIGH' ? '#fb923c' :
+                                   alert.severity === 'MEDIUM' ? '#fbbf24' : '#34d399'
+                          }}>
+                            {alert.severity}
+                          </span>
+                          <span style={{ fontSize: '10px', color: '#64748b' }}>{alert.date}</span>
+                        </div>
+                        <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'white', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{alert.title}</h4>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px', padding: '32px 0' }}>No alerts available</div>
+                )}
+                <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #334155' }}>
+                  <p style={{ fontSize: '12px', color: '#64748b' }}>Source: CERT-In, Govt. of India</p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 

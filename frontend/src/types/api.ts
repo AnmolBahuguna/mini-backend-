@@ -9,7 +9,7 @@ export interface DashboardStatsResponse {
 
 export interface ThreatCheckRequest {
   entity: string
-  entity_type: 'url' | 'phone' | 'email' | 'upi' | 'ip' | 'message'
+  entity_type: 'url' | 'domain' | 'phone' | 'email' | 'upi' | 'ip' | 'message'
 }
 
 export interface ThreatCheckResponse {
@@ -20,9 +20,10 @@ export interface ThreatCheckResponse {
   reports_count: number
   geo_tags: string[]
   entity: string
-  entity_type: string
+  entity_type: ThreatCheckRequest['entity_type']
   api_results?: Record<string, string>
   ai_summary?: string
+  status?: 'pending' | 'completed' | 'error'
 }
 
 export interface AlertsResponse {
@@ -60,11 +61,14 @@ export interface CommunityReport {
 
 export interface CreateReportRequest {
   entity: string
+  entity_type?: ThreatCheckRequest['entity_type']
   scamType: string
   description: string
+  state?: string
+  victimCount?: number
+  anonymous?: boolean
+  reporterName?: string
+  reporterEmail?: string
 }
 
-export interface CreateReportResponse {
-  id: string
-  message: string
-}
+export type CreateReportResponse = CommunityReport & { success?: boolean; report_id?: string }

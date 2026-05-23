@@ -8,6 +8,20 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   globalIgnores(['dist']),
   {
+    files: ['src/store/crimeStore.d.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  {
+    files: ['e2e/**/*.ts', 'src/test/**/*.ts', 'src/test/**/*.tsx'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
+    },
+  },
+  {
     files: ['**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,

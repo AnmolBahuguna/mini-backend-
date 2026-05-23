@@ -3,7 +3,9 @@ type Props = {
 }
 
 export function RiskGauge({ score }: Props) {
-  const clamped = Math.max(0, Math.min(10, score))
+  // Parse score to ensure it's a number (fix for "gauge stuck at 0")
+  const parsedScore = parseFloat(String(score)) || 0
+  const clamped = Math.max(0, Math.min(10, parsedScore))
   const pct = clamped / 10
   const color = clamped <= 3 ? '#059669' : clamped <= 6 ? '#D97706' : '#DC2626'
   const radius = 80

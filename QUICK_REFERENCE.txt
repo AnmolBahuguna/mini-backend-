@@ -1,0 +1,142 @@
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║            🛡️  DHIP - Quick Backend Startup Guide 🛡️             ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+
+🔴 PROBLEM:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Error: Cannot connect to API at http://localhost:8000
+Reason: Backend server is NOT running
+
+
+✅ SOLUTION:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👉 Double-click: backend-auto-run.bat
+
+That's it!
+
+
+📋 STEP BY STEP:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣  Go to project folder
+    📁 C:\Users\sheet\OneDrive\Desktop\Anmol\Mini project
+
+2️⃣  Find: backend-auto-run.bat
+
+3️⃣  Double-click it
+
+4️⃣  Wait for:
+    ✅ BACKEND SERVER STARTING
+
+5️⃣  ⚠️ KEEP TERMINAL OPEN ⚠️
+    Do not close it!
+
+6️⃣  Test it:
+    Browser: http://localhost:8000/api/
+    Should show: {"message": "OK"}
+
+7️⃣  Start Frontend (NEW terminal):
+    cd frontend
+    npm run dev
+
+8️⃣  Open: http://localhost:5173
+
+9️⃣  START SCANNING! 🛡️
+
+
+⏱️ TIME REQUIRED:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⏳ First run: 15-30 seconds (installs dependencies)
+⏳ Next runs: 5-10 seconds (uses cached dependencies)
+
+
+⚠️ IMPORTANT:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ Do NOT close backend terminal
+✅ Keep it open while using frontend
+✅ It's safe to minimize it
+✅ You can continue working normally
+
+
+🔍 SUCCESS INDICATORS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ Terminal shows: "Starting development server at..."
+✓ http://localhost:8000/api/ shows JSON
+✓ Frontend has no network errors
+✓ Can type URL and scan threats
+
+
+❌ TROUBLESHOOTING:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❓ Terminal closes immediately?
+   → Try: double-click check-backend.bat
+
+❓ Error: "Python not found"?
+   → Install Python: https://python.org
+
+❓ Port 8000 in use?
+   → Run: check-backend.bat (fixes automatically)
+
+❓ Still can't connect?
+   → Make sure backend terminal is open
+   → Test: http://localhost:8000/api/
+   → Read: NETWORK_ERROR_GUIDE.md
+
+
+📁 FILES YOU NEED:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Main:
+  ⭐ backend-auto-run.bat ........ Start backend (MAIN FILE)
+
+Help:
+  🔧 check-backend.bat ........... Diagnose issues
+  📖 00-READ-ME-FIRST.md ......... Overview
+  📖 CANNOT_CONNECT_FIX.md ....... Detailed fix
+  📖 VISUAL_GUIDE.txt ............ Text guide
+
+
+🎯 QUICK COMMANDS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Start Backend:
+  → Double-click: backend-auto-run.bat
+  OR
+  → cd backend && python manage.py runserver
+
+Start Frontend:
+  → cd frontend && npm run dev
+
+Test Backend:
+  → http://localhost:8000/api/
+
+Frontend:
+  → http://localhost:5173
+
+
+💡 PRO TIP:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Right-click backend-auto-run.bat
+→ Send To → Desktop (create shortcut)
+→ Now you can double-click from Desktop anytime!
+
+
+✅ YOU'RE ALL SET!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👉 Double-click: backend-auto-run.bat
+
+Then enjoy your DHIP threat scanner! 🛡️
+
+
+Questions? See: 00-READ-ME-FIRST.md

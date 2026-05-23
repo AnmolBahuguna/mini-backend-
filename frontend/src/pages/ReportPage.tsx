@@ -7,7 +7,7 @@ import { indiaRegions } from '../lib/indiaRegions'
 import { useLocation, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { api } from '../lib/api'
-import { useOptionalAuth } from '../store/AuthContext'
+import { useOptionalAuth } from '../store/useAuthContext'
 
 const schema = z.object({
   threatType: z.string().min(1, 'Threat type is required'),
@@ -36,22 +36,32 @@ export function ReportPage() {
   })
 
   const submit = async (values: FormInput) => {
-    await new Promise((resolve) => setTimeout(resolve, 300))
     if (!user) {
       const returnUrl = encodeURIComponent(location.pathname)
       toast.error('Please sign in to submit a report')
-      navigate(`/auth/login?returnUrl=${returnUrl}`)
+      navigate(`/login${returnUrl ? `?returnUrl=${returnUrl}` : ''}`)
       return
     }
 
     try {
-      await api.post('/api/reports/', {
-        entity: values.entity,
-        scamType: values.threatType,
-        description: values.description,
-      })
+        const metadata = (user?.user_metadata || {}) as Record<string, string | undefined>
+        const reporterName = metadata.full_name || metadata.name || user?.email
+
+        const payload = {
+          entity: values.entity,
+          scamType: values.threatType,
+          description: values.description,
+          state: values.state,
+          victimCount: values.victimCount ? Number(values.victimCount) : undefined,
+          anonymous: values.anonymous,
+          reporterName: values.anonymous ? undefined : reporterName,
+          reporterEmail: values.anonymous ? undefined : user.email,
+        }
+
+      const { data } = await api.post('/api/reports/', payload)
       confetti({ particleCount: 160, spread: 80, origin: { y: 0.6 } })
-      toast.success('Report submitted successfully')
+      const message = (data as { message?: string; id?: string })?.message || 'Report submitted successfully'
+      toast.success(message)
       reset({ anonymous: true, threatType: '', description: '', entity: '', state: '', victimCount: '' })
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to submit report right now'
@@ -76,7 +86,7 @@ export function ReportPage() {
             <label className="mb-2 block text-sm font-medium text-gray-400 uppercase">Threat Type</label>
             <select className="input-base" {...register('threatType')}>
               <option value="">Select type</option>
-              <option>URL/Link</option><option>Phone Number</option><option>UPI ID</option><option>App/Website</option><option>Other</option>
+              <option>URL/Link</option><option>Phone Number</option><option>UPI ID</option><option>App/Website</option><option>Loan App</option><option>Digital Arrest</option><option>Job Scam</option><option>Other</option>
             </select>
             {errors.threatType ? <p className="mt-1 text-xs text-red-400">{errors.threatType.message}</p> : null}
           </div>

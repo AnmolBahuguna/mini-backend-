@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAlertsQuery } from '../hooks/useAlertsQuery'
 import type { AlertApiRecord } from '../types/api'
+import { useCrimeStore } from '../store/crimeStore'
 
 type Severity = 'HIGH' | 'MEDIUM' | 'LOW'
 
@@ -15,6 +16,14 @@ type Alert = {
   minsAgo: number
   reports: number
   isNew?: boolean
+}
+
+type CertInAlert = {
+  severity: string
+  date: string
+  title: string
+  description?: string
+  link?: string
 }
 
 const STATES = [
@@ -657,6 +666,9 @@ export function AlertsPage() {
   const [sortBy, setSortBy] = useState<'newest' | 'severity' | 'reports'>('newest')
   const [showOnlyHigh, setShowOnlyHigh] = useState(false)
 
+  // CERT-In alerts from crime store
+  const { liveAlerts, fetchLiveAlerts, loading: certLoading } = useCrimeStore()
+
   const realtime = useRealtimeAlerts(stateFilter, typeFilter)
   const { data: apiAlerts, isLoading: apiLoading, isError: apiError, refetch } = useAlertsQuery({ state: stateFilter, scamType: typeFilter })
 
@@ -670,6 +682,20 @@ export function AlertsPage() {
   const connectionStatus = hasApiData ? (apiLoading ? 'connecting' : 'connected') : realtime.connectionStatus
   const newIds = hasApiData ? new Set<string>() : realtime.newIds
   const retry = hasApiData ? refetch : realtime.retry
+
+  // Fetch CERT-In alerts on mount and set up auto-refresh
+  useEffect(() => {
+    console.log('[AlertsPage] Fetching CERT-In alerts...')
+    fetchLiveAlerts()
+    
+    // Auto-refresh every 5 minutes
+    const interval = setInterval(() => {
+      console.log('[AlertsPage] Auto-refreshing CERT-In alerts...')
+      fetchLiveAlerts()
+    }, 5 * 60 * 1000) // 5 minutes
+    
+    return () => clearInterval(interval)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const nextRisk = () => Math.floor(Math.random() * 85) + 10
@@ -858,6 +884,84 @@ export function AlertsPage() {
             </div>
 
             {!loading ? <TopScams alerts={allAlerts} /> : null}
+
+            {/* CERT-In Live Alerts Section */}
+            <div className="bg-gray-900/80 border border-gray-800/60 rounded-2xl overflow-hidden">
+              <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border-b border-gray-800/60 p-4">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="text-white font-bold text-sm flex items-center gap-2">
+                    🚨 CERT-In Alerts
+                    {!certLoading && liveAlerts.length > 0 && (
+                      <span className="text-xs font-normal bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full">
+                        {liveAlerts.length} active
+                      </span>
+                    )}
+                  </h3>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-xs text-green-400">Auto-refresh</span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400">National cyber threat advisories</p>
+              </div>
+              
+              <div className="p-3 max-h-96 overflow-y-auto">
+                {certLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="text-sm text-gray-500 animate-pulse">Loading alerts...</div>
+                  </div>
+                ) : liveAlerts.length > 0 ? (
+                  <div className="space-y-2">
+                    {liveAlerts.map((alert: CertInAlert, idx: number) => (
+                      <div
+                        key={idx}
+                        className="bg-gray-800/40 border border-gray-700/50 rounded-lg p-3 hover:border-gray-600/50 transition-colors"
+                      >
+                        <div className="flex items-start gap-2 mb-1.5">
+                          <span
+                            className={`text-xs font-bold px-2 py-0.5 rounded ${
+                              alert.severity === 'CRITICAL'
+                                ? 'bg-red-500/20 text-red-400'
+                                : alert.severity === 'HIGH'
+                                ? 'bg-orange-500/20 text-orange-400'
+                                : alert.severity === 'MEDIUM'
+                                ? 'bg-amber-500/20 text-amber-400'
+                                : 'bg-blue-500/20 text-blue-400'
+                            }`}
+                          >
+                            {alert.severity}
+                          </span>
+                          <span className="text-xs text-gray-500">{alert.date}</span>
+                        </div>
+                        <h4 className="text-sm font-semibold text-white mb-1 leading-snug">
+                          {alert.title}
+                        </h4>
+                        {alert.description && (
+                          <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">
+                            {alert.description}
+                          </p>
+                        )}
+                        {alert.link && (
+                          <a
+                            href={alert.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-400 hover:text-blue-300 mt-2 inline-flex items-center gap-1"
+                          >
+                            View details →
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="text-gray-500 text-sm">No CERT-In alerts available</div>
+                    <div className="text-gray-600 text-xs mt-1">Monitoring for new threats...</div>
+                  </div>
+                )}
+              </div>
+            </div>
 
             <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4">
               <p className="text-blue-300 font-bold text-sm mb-1">🆘 Cyber Helpline</p>

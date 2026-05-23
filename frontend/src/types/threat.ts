@@ -1,4 +1,4 @@
-export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'VERIFIED' | 'CRITICAL'
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'VERIFIED' | 'CRITICAL' | 'UNKNOWN'
 
 export type ThreatReport = {
   id: string
